@@ -15,17 +15,39 @@ blanks [ \t\v\h]+
 
 %%
 
---\[\[([^\]])*(\]([^\]])+)*\]\] {
-		for(int i=0;yytext[i]!='\0';i++){
-			if(yytext[i]=='\n'){
-				row++;
-			}
+--\[\[\@([^\]])*(\]([^\]])+)*\]\] {
+	printf("deco declare : %s\n", yytext);
+	for(int i=0;yytext[i]!='\0';i++){
+		if(yytext[i]=='\n'){
+			row++;
 		}
 	}
---[^\n]* {
+	//return DECO_DECLARE;
+}
+
+--\[\[([^\]])*(\]([^\]])+)*\]\] {
+	for(int i=0;yytext[i]!='\0';i++){
+		if(yytext[i]=='\n'){
+			row++;
+		}
 	}
+}
+
+
+--@[^-\n]*->[^\n]* {
+	printf("deco next: %s\n", yytext);
+	//return DECO_NEXT;
+}
+
+--@[^-\n]*-<[^\n]* {
+	printf("deco pre: %s\n", yytext);
+	//return DECO_PRE;
+}
+
+--[^\n]* ;
 
 {blanks}  ;
+
 "\n"  {
 	row++;
 }
