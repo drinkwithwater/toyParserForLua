@@ -1,0 +1,8 @@
+old/*
+lex.c
+yacc.h
+yacc.c
+*.so
+cua
+*.o
+*.txt
