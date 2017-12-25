@@ -80,6 +80,7 @@ blanks [ \t\v\h]+
 "Number" return NUMBER;
 "String" return STRING;
 "Function" return FUNCTION;
+"Enum" return ENUM;
 
 "List" return LIST;
 "Map" return MAP;

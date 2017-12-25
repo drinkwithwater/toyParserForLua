@@ -46,18 +46,21 @@
     ;
 
 %token VALUE_STRING VALUE_NUMBER
-%token NIL BOOLEAN NUMBER STRING FUNCTION LIST MAP INTERFACE
+%token NIL BOOLEAN NUMBER STRING FUNCTION LIST MAP INTERFACE ENUM
 %token ID
 
 %%
 
 chunk : block { lua_set_root($1); }
 
-block : declare_list { $$=$1; }
+block : stmt_list { $$=$1; }
 
-declare_list : declare {}
-			 | declare_list declare {
+stmt_list : stmt {}
+			 | stmt_list stmt{
 			 }
+
+stmt : declare {}
+	 | deco_type SEMICOLON {}
 declare : INTERFACE id LEFT_BRACE key_type_list RIGHT_BRACE { }
 
 key_type_pair : id EQA deco_type {}
@@ -86,18 +89,21 @@ single_type : NIL { }
 class_type : id {
 		   }
 
+enum_type : Enum id {
+		  }
 
-function_type : LEFT_PAREN RIGHT_PAREN {}
-			  | LEFT_PAREN RIGHT_PAREN COLON ret_type { }
-			  | LEFT_PAREN type_list RIGHT_PAREN {}
-			  | LEFT_PAREN type_list RIGHT_PAREN COLON ret_type{ }
 
-map_type : MAP LT single_type COMMA class_type GT { }
-		 | MAP LT single_type COMMA single_type GT { }
+function_type : LEFT_PAREN RIGHT_PAREN { printf("function_type\n"); }
+			  | LEFT_PAREN RIGHT_PAREN COLON ret_type {  printf("function_type\n"); }
+			  | LEFT_PAREN type_list RIGHT_PAREN { printf("function_type\n"); }
+			  | LEFT_PAREN type_list RIGHT_PAREN COLON ret_type{ printf("function_type\n");  }
 
-list_type : LIST {}
-		  | LIST LT class_type GT {}
-		  | LIST LT single_type GT {}
+map_type : MAP LT single_type COMMA class_type GT { printf("map_type\n");  }
+		 | MAP LT single_type COMMA single_type GT {  printf("map_type\n");  }
+
+list_type : LIST {  printf("list_type\n");  }
+		  | LIST LT class_type GT { printf("list_type\n"); }
+		  | LIST LT single_type GT { printf("list_type\n"); }
 
 id : ID {}
 
