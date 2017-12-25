@@ -392,11 +392,11 @@ id_list : id {
 
 id : ID {$$ = $1;}
 
-table : LEFT_BRACE key_value_list RIGHT_BRACE { $$=$2; }
+table : LEFT_BRACE RIGHT_BRACE { $$=lua_new_obj("key_value_list", NULL); }
+	| LEFT_BRACE key_value_list RIGHT_BRACE { $$=$2; }
 	| LEFT_BRACE key_value_list COMMA RIGHT_BRACE { $$=$2; }
 
-key_value_list : { $$=lua_new_obj("key_value_list",NULL); }
-	| key_value {
+key_value_list : key_value {
 		int tableIndex = lua_new_obj("key_value_list",NULL);
 		$$ = tableIndex;
 		lua_list_push(tableIndex, $1);

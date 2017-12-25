@@ -44,7 +44,7 @@ local function showDepth(node, depth)
 			myPrint(node.__type.." {")
 		end
 		for k,v in pairs(node) do
-			if k~="__type" and k~="__subtype" then
+			if k~="__type" and k~="__subtype" and k~="row" and k~="col" then
 				if type(v) == "table" then
 					myPrint("  "..k)
 					showDepth(v, depth+2)
@@ -64,7 +64,7 @@ local function showDepth(node, depth)
 		end
 	else
 		for k,v in pairs(node) do
-			if k~="__type" then
+			if k~="__type" and k~="__subtype" and k~="row" and k~="col" then
 				if type(v) == "table" then
 					myPrint(k)
 					showDepth(v, depth+1)
