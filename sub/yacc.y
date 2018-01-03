@@ -6,8 +6,8 @@
 	lua_State* L_context=NULL;		// lua state when parsing
 	char* inputStr=NULL;			// pointer for parsing string
 
-	extern int col;
-	extern int row;
+	int col = 1;
+	int row = 1;
     int yylex(void);
     void yyerror(char *);
 
@@ -42,7 +42,8 @@
 %token
     BITOR "|"
 
-    SUB "-"
+	SUB_GT "->"
+	SUB_LT "-<"
 
     GT ">"
     LT "<"
@@ -67,10 +68,16 @@ chunk : block {
 block : declare_list {
 		  $$=$1;
 	  }
-	  | deco_type SEMICOLON {
+	  | deco_type SUB_GT {
 		int tableIndex = new_obj();
 		$$ = tableIndex;
-		set_type(tableIndex, "decorator");
+		set_type(tableIndex, "deco_next");
+		table_set(tableIndex, "deco_type", $1);
+	  }
+	  | deco_type SUB_LT {
+		int tableIndex = new_obj();
+		$$ = tableIndex;
+		set_type(tableIndex, "deco_pre");
 		table_set(tableIndex, "deco_type", $1);
 	  }
 
@@ -308,7 +315,8 @@ static int lparse(lua_State* L){
 
 	L_context = L;
 	size_t size = 0;
-	inputStr = luaL_checklstring(L, 1, &size);
+	row = luaL_checkinteger(L, 1);
+	inputStr = luaL_checklstring(L, 2, &size);
 	yyparse();
 	inputStr = NULL;
 	L_context = NULL;

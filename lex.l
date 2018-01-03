@@ -22,7 +22,14 @@ blanks [ \t\v\h]+
 			row++;
 		}
 	}
-	//return DECO_DECLARE;
+    lua_getfield(L_context, LUA_REGISTRYINDEX, "node");
+	int index = luaL_len(L_context, -1) + 1;
+	int len = strlen(yytext);
+	lua_pushlstring(L_context, yytext,len);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
+	lua_pop(L_context,1);
+	return DECO_DECLARE;
 }
 
 --\[\[([^\]])*(\]([^\]])+)*\]\] {
@@ -35,13 +42,25 @@ blanks [ \t\v\h]+
 
 
 --@[^-\n]*->[^\n]* {
-	printf("deco next: %s\n", yytext);
-	//return DECO_NEXT;
+    lua_getfield(L_context, LUA_REGISTRYINDEX, "node");
+	int index = luaL_len(L_context, -1) + 1;
+	int len = strlen(yytext);
+	lua_pushlstring(L_context, yytext,len);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
+	lua_pop(L_context,1);
+	return DECO_PREFIX;
 }
 
 --@[^-\n]*-<[^\n]* {
-	printf("deco pre: %s\n", yytext);
-	//return DECO_PRE;
+    lua_getfield(L_context, LUA_REGISTRYINDEX, "node");
+	int index = luaL_len(L_context, -1) + 1;
+	int len = strlen(yytext);
+	lua_pushlstring(L_context, yytext,len);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
+	lua_pop(L_context,1);
+	return DECO_SUFFIX;
 }
 
 --[^\n]* ;

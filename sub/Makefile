@@ -12,6 +12,7 @@ all: sub.so
 
 sub.so: yacc.c lex.c
 	gcc $(CFLAGS) $(SHARED) $^ -o $@ $(LDFLAGS)
+	cp ./sub.so ../sub.so
 
 yacc.o: yacc.c
 	gcc -c $^ -o $@

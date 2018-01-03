@@ -78,7 +78,7 @@
 %token ID STRING NUMBER
 %token DOT3 DOT2
 %token TRUE FALSE NIL
-%token COMMENT DECO_NEXT DECO_PRE DECO_DECLARE
+%token COMMENT DECO_PREFIX DECO_SUFFIX DECO_DECLARE
 
 %%
 
@@ -92,7 +92,12 @@ stmt_list : { $$=lua_new_obj("stmt_list",NULL); }
 		$$=$1;
 	}
 
-stmt : DO block END { $$ = $2; }
+stmt : DECO_DECLARE {
+		 int tableIndex = lua_new_obj("stmt", "deco_declare");
+		 $$ = tableIndex;
+		 lua_table_set(tableIndex, "buffer", $1);
+	 }
+	| DO block END { $$ = $2; }
     | while_head DO block END {
 		int tableIndex = lua_new_obj("stmt", "while");
 		$$ = tableIndex;
@@ -107,6 +112,14 @@ stmt : DO block END { $$ = $2; }
 	}
     | if_stmt { $$ = $1; }
     | local_stmt { $$ = $1; }
+    | DECO_PREFIX local_stmt {
+		lua_table_set($2, "deco_buffer", $1);
+		$$ = $2;
+	}
+    | local_stmt DECO_SUFFIX {
+		lua_table_set($1, "deco_buffer", $2);
+		$$ = $1;
+	}
 	| assign_stmt { $$ = $1; }
     | function_stmt { $$ = $1; }
     | function_call { $$ = $1; }

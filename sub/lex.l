@@ -6,8 +6,8 @@
 
 	extern lua_State* L_context;
 	extern char* inputStr;
-    int col=1;
-	int row=1;
+    extern int col;
+	extern int row;
     #undef yywrap
 
 #define YY_INPUT(buf,result,max_size) \
@@ -109,6 +109,9 @@ blanks [ \t\v\h]+
 "}" return RIGHT_BRACE;
 
 "|" return BITOR;
+
+"->" return SUB_GT;
+"-<" return SUB_LT;
 
 ">" return GT;
 "<" return LT;

@@ -1,4 +1,5 @@
 local cjson = require "cjson"
+local subParser = require "sub/subParser"
 local idDictStack = {}
 
 local function headIDDict()
@@ -82,7 +83,21 @@ travelDict={
 				local subList = travel(node.block)
 				print(nodeInfo(node.block), cjson.encode(subList))
 			end
+
+			if node.deco_buffer then
+				local inBuffer = node.deco_buffer:sub(4)
+				local minusIndex = inBuffer:find("-")
+				inBuffer=inBuffer:sub(1, minusIndex+1)
+				print("============= deco" , inBuffer)
+				subParser:parseScript(node.row, inBuffer)
+			end
 			return idList
+		end,
+		["deco_declare"]=function(node)
+			local inBuffer = node.buffer
+			inBuffer = inBuffer:sub(6, #inBuffer-2)
+			print("============= declare" , inBuffer)
+			subParser:parseScript(node.row, inBuffer)
 		end
 	},
 	for_head={
