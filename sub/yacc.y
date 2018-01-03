@@ -3,20 +3,29 @@
 	#include <lua.h>
 	#include <lauxlib.h>
     #include "yacc.h"
-	lua_State* L_context=NULL;
+	lua_State* L_context=NULL;		// lua state when parsing
+	char* inputStr=NULL;			// pointer for parsing string
+
 	extern int col;
 	extern int row;
     int yylex(void);
     void yyerror(char *);
 
 
-	int lua_new_table();
-	int lua_new_obj(char* type, char* subType);
-	void lua_list_push(int listIndex, int childListIndex);
-	void lua_table_set(int tableIndex, char * key, int subItemIndex);
-	void lua_set_root(int tableIndex);
+	int new_obj();
+	void list_push(int listIndex, int childListIndex);
+	void table_set(int tableIndex, char * key, int subItemIndex);
+	void set_type(int tableIndex, char * value);
+	void set_root(int tableIndex);
 
 	int indexCount;
+
+	int REF_NIL = 1;
+	int REF_BOOLEAN = 2;
+	int REF_NUMBER = 3;
+	int REF_STRING = 4;
+	int REF_FUNCTION = 5;
+	int REF_CLASS  = 6;
 %}
 
 %token
@@ -45,67 +54,178 @@
     SEMICOLON ";"
     ;
 
-%token VALUE_STRING VALUE_NUMBER
-%token NIL BOOLEAN NUMBER STRING FUNCTION LIST MAP INTERFACE ENUM
+%token VALUE_INTEGER VALUE_FLOAT VALUE_STRING
+%token NIL BOOLEAN NUMBER STRING FUNCTION LIST MAP INTERFACE ENUM CLASS
 %token ID
 
 %%
 
-chunk : block { lua_set_root($1); }
+chunk : block {
+		  set_root($1);
+	  }
 
-block : stmt_list { $$=$1; }
+block : declare_list {
+		  $$=$1;
+	  }
+	  | deco_type SEMICOLON {
+		int tableIndex = new_obj();
+		$$ = tableIndex;
+		set_type(tableIndex, "decorator");
+		table_set(tableIndex, "deco_type", $1);
+	  }
 
-stmt_list : stmt {}
-			 | stmt_list stmt{
-			 }
+declare_list : declare {
+		    int tableIndex = new_obj();
+			$$ = tableIndex;
+			list_push(tableIndex, $1);
+		  }
+		 | declare_list declare{
+			$$ = $1;
+			list_push($1, $2);
+		 }
 
-stmt : declare {}
-	 | deco_type SEMICOLON {}
-declare : INTERFACE id LEFT_BRACE key_type_list RIGHT_BRACE { }
+declare : INTERFACE id LEFT_BRACE key_type_list RIGHT_BRACE {
+		int tableIndex = new_obj();
+		$$ = tableIndex;
+		set_type($$, "declare");
+		table_set(tableIndex, "name", $2);
+		table_set(tableIndex, "key_type_list", $4);
+	 }
 
-key_type_pair : id EQA deco_type {}
+key_type_pair : id EQA deco_type {
+				int tableIndex = new_obj();
+				$$ = tableIndex;
+				table_set(tableIndex, "key", $1);
+				table_set(tableIndex, "value", $3);
+			  }
 
-key_type_list : key_type_pair {}
-			  | key_type_list COMMA key_type_pair{}
+key_type_list : key_type_pair {
+				int tableIndex = new_obj();
+				$$ = tableIndex;
+				list_push(tableIndex, $1);
+			  }
+			  | key_type_list COMMA key_type_pair{
+				list_push($1, $3);
+				$$=$1;
+			  }
 
-deco_type : ret_type {}
-		  | function_type {}
+deco_type : ret_type { $$=$1; }
+		  | function_type { $$=$1; }
+		  | class_type { $$=$1; }
+		  | CLASS {
+			  int tableIndex = new_obj();
+			  $$=tableIndex;
+			  set_type(tableIndex, "CLASS");
+		  }
 
-ret_type : single_type {}
-		  | map_type {}
-		  | list_type {}
-		  | class_type {}
+ret_type : single_type {$$=$1;}
+		  | map_type {$$=$1;}
+		  | list_type {$$=$1;}
+		  | class_type {$$=$1;}
 
 
-type_list : ret_type {}
-		  | type_list COMMA ret_type {}
+type_list : ret_type { // TODO
+			int tableIndex = new_obj();
+			$$ = tableIndex;
+			list_push(tableIndex, $1);
+		  }
+		  | type_list COMMA ret_type {
+			list_push($1, $3);
+			$$ = $1;
+		  }
 
-single_type : NIL { }
-			| BOOLEAN { }
-			| NUMBER { }
-			| STRING { }
-			| FUNCTION { }
+single_type : NIL {
+				int tableIndex=new_obj();
+				$$=tableIndex;
+				set_type(tableIndex,"type");
+				table_set(tableIndex,"type",REF_NIL);
+			}
+			| BOOLEAN {
+				int tableIndex=new_obj();
+				$$=tableIndex;
+				set_type(tableIndex,"type");
+				table_set(tableIndex,"type",REF_BOOLEAN);
+			}
+			| NUMBER {
+				int tableIndex=new_obj();
+				$$=tableIndex;
+				set_type(tableIndex,"type");
+				table_set(tableIndex,"type",REF_NUMBER);
+			}
+			| STRING {
+				int tableIndex=new_obj();
+				$$=tableIndex;
+				set_type(tableIndex,"type");
+				table_set(tableIndex,"type",REF_STRING);
+			}
 
-class_type : id {
+class_type : CLASS DOT id {
+			  int tableIndex = new_obj();
+			  $$=tableIndex;
+			  set_type(tableIndex, "type");
+			  table_set(tableIndex, "type", REF_CLASS);
+			  table_set(tableIndex, "name", $3);
 		   }
 
-enum_type : Enum id {
+enum_type : ENUM id {
 		  }
 
 
-function_type : LEFT_PAREN RIGHT_PAREN { printf("function_type\n"); }
-			  | LEFT_PAREN RIGHT_PAREN COLON ret_type {  printf("function_type\n"); }
-			  | LEFT_PAREN type_list RIGHT_PAREN { printf("function_type\n"); }
-			  | LEFT_PAREN type_list RIGHT_PAREN COLON ret_type{ printf("function_type\n");  }
+function_type : argv COLON argv {
+				  int tableIndex = new_obj();
+				  $$=tableIndex;
+				  set_type(tableIndex, "type");
+				  table_set(tableIndex, "type", REF_FUNCTION);
+				  table_set(tableIndex, "argv", $1);
+				  table_set(tableIndex, "retv", $3);
+			  }
 
-map_type : MAP LT single_type COMMA class_type GT { printf("map_type\n");  }
-		 | MAP LT single_type COMMA single_type GT {  printf("map_type\n");  }
+argv : LEFT_PAREN type_list RIGHT_PAREN {$$=$2;}
+	 | LEFT_PAREN RIGHT_PAREN {$$=new_obj();}
 
-list_type : LIST {  printf("list_type\n");  }
-		  | LIST LT class_type GT { printf("list_type\n"); }
-		  | LIST LT single_type GT { printf("list_type\n"); }
 
-id : ID {}
+map_type : MAP LT single_type COMMA class_type GT {
+			int tableIndex = new_obj();
+			set_type(tableIndex, "map");
+			$$ = tableIndex;
+			table_set(tableIndex, "key_type", $3);
+			table_set(tableIndex, "value_type", $5);
+		 }
+		 | MAP LT single_type COMMA single_type GT {
+			int tableIndex = new_obj();
+			set_type(tableIndex, "map");
+			$$ = tableIndex;
+			table_set(tableIndex, "key_type", $3);
+			table_set(tableIndex, "value_type", $5);
+		 }
+
+list_type : LIST {
+			int tableIndex = new_obj();
+			set_type(tableIndex, "list");
+			$$ = tableIndex;
+		  }
+		  | LIST LT class_type GT {
+			int tableIndex = new_obj();
+			set_type(tableIndex, "list");
+			$$ = tableIndex;
+			table_set(tableIndex, "node_type", $3);
+		  }
+		  | LIST LT single_type GT {
+			int tableIndex = new_obj();
+			set_type(tableIndex, "list");
+			$$ = tableIndex;
+			table_set(tableIndex, "node_type", $3);
+		  }
+		  | LIST LEFT_BRACKET VALUE_INTEGER RIGHT_BRACKET {
+			int tableIndex = new_obj();
+			set_type(tableIndex, "list");
+			$$ = tableIndex;
+			table_set(tableIndex, "size", $3);
+		  }
+
+id : ID {
+	$$ = $1;
+   }
 
 
 
@@ -116,74 +236,20 @@ void yyerror(char *s) {
     fprintf(stderr, "col=%d, row=%d %s\n", col, row, s);
 }
 
-
-void lua_set_root(int tableIndex){
+void set_root(int tableIndex){
+	int index = luaL_len(L_context, -1) + 1;
 	lua_pushinteger(L_context, tableIndex);
-    lua_setfield(L_context, LUA_REGISTRYINDEX, "root");
-}
-
-int lua_new_stmt(char* type){
-    lua_getfield(L_context, LUA_REGISTRYINDEX, "node");
-	int index = luaL_len(L_context, -1) + 1;
-	// stmtTable = {}
-	lua_newtable(L_context);
-
-	// stmtTable.__type=type
-	lua_pushlstring(L_context,"__type",6);
-	lua_pushlstring(L_context,type,strlen(type));
-	lua_rawset(L_context, -3);
-
-	// node[index] = stmtTable
 	lua_rawseti(L_context, -2, index);
-	lua_pop(L_context,1);
-	return index;
 }
 
-int lua_new_obj(char* type, char* subType){
-    lua_getfield(L_context, LUA_REGISTRYINDEX, "node");
-	int index = luaL_len(L_context, -1) + 1;
-	// obj = {}
-	lua_newtable(L_context);
-
-	// obj.__type=type
-	lua_pushlstring(L_context,"__type",6);
-	lua_pushlstring(L_context,type,strlen(type));
-	lua_rawset(L_context, -3);
-
-	if(subType!=NULL){
-		// obj.__subtype=subType
-		lua_pushlstring(L_context,"__subtype",9);
-		lua_pushlstring(L_context,subType,strlen(subType));
-		lua_rawset(L_context, -3);
-	}
-
-	//obj.col = col;
-	lua_pushlstring(L_context,"col",3);
-	lua_pushinteger(L_context,col);
-	lua_rawset(L_context, -3);
-
-	//obj.row = row;
-	lua_pushlstring(L_context,"row",3);
-	lua_pushinteger(L_context,row);
-	lua_rawset(L_context, -3);
-
-	// node[index] = obj
-	lua_rawseti(L_context, -2, index);
-	lua_pop(L_context,1);
-	return index;
-}
-
-int lua_new_table(){
-    lua_getfield(L_context, LUA_REGISTRYINDEX, "node");
+int new_obj(){
 	int index = luaL_len(L_context, -1) + 1;
 	lua_newtable(L_context);
 	lua_rawseti(L_context, -2, index);
-	lua_pop(L_context,1);
 	return index;
 }
 
-void lua_list_push(int listIndex, int childListIndex){
-    lua_getfield(L_context, LUA_REGISTRYINDEX, "node");
+void list_push(int listIndex, int childListIndex){
 	lua_rawgeti(L_context, -1, listIndex);
 
 	// list[#list+1] =  childListIndex
@@ -191,11 +257,10 @@ void lua_list_push(int listIndex, int childListIndex){
 	lua_pushinteger(L_context, childListIndex);
 	lua_rawseti(L_context, -2, index);
 
-	lua_pop(L_context,2);
+	lua_pop(L_context,1);
 }
 
-void lua_table_set(int tableIndex, char* key, int subItemIndex){
-    lua_getfield(L_context, LUA_REGISTRYINDEX, "node");
+void table_set(int tableIndex, char* key, int subItemIndex){
 	lua_rawgeti(L_context, -1, tableIndex);
 
 	// table[key] = subItemIndex;
@@ -203,28 +268,53 @@ void lua_table_set(int tableIndex, char* key, int subItemIndex){
 	lua_pushinteger(L_context, subItemIndex);
 	lua_rawset(L_context, -3);
 
-	lua_pop(L_context,2);
+	lua_pop(L_context,1);
+}
+
+void set_type(int tableIndex, char* value){
+	lua_rawgeti(L_context, -1, tableIndex);
+
+	// table.__type = value;
+	lua_pushlstring(L_context, "__type", 6);
+	lua_pushlstring(L_context, value, strlen(value));
+	lua_rawset(L_context, -3);
+
+	lua_pop(L_context,1);
+}
+
+static int initConstRef(lua_State* L){
+	lua_pushlstring(L, "Nil", 3);
+	lua_rawseti(L, -2, REF_NIL);
+
+	lua_pushlstring(L, "Boolean", 7);
+	lua_rawseti(L, -2, REF_BOOLEAN);
+
+	lua_pushlstring(L, "Number", 6);
+	lua_rawseti(L, -2, REF_NUMBER);
+
+
+	lua_pushlstring(L, "String", 6);
+	lua_rawseti(L, -2, REF_STRING);
+
+	lua_pushlstring(L, "Function", 8);
+	lua_rawseti(L, -2, REF_FUNCTION);
+
+	lua_pushlstring(L, "Class", 5);
+	lua_rawseti(L, -2, REF_CLASS);
 }
 
 static int lparse(lua_State* L){
+	initConstRef(L);
+
 	L_context = L;
+	size_t size = 0;
+	inputStr = luaL_checklstring(L, 1, &size);
 	yyparse();
+	inputStr = NULL;
 	L_context = NULL;
 }
 
-static int get(lua_State* L) {
-    lua_getfield(L, LUA_REGISTRYINDEX, "node");
-	return 1;
-}
-
-static int getRoot(lua_State* L) {
-    lua_getfield(L, LUA_REGISTRYINDEX, "root");
-	return 1;
-}
-
 static const struct luaL_Reg l_methods[] = {
-    { "get" , get},
-    { "getRoot" , getRoot},
     { "parse" , lparse},
     {NULL, NULL},
 };

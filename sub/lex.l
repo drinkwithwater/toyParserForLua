@@ -5,9 +5,21 @@
     #include "yacc.h"
 
 	extern lua_State* L_context;
+	extern char* inputStr;
     int col=1;
 	int row=1;
     #undef yywrap
+
+#define YY_INPUT(buf,result,max_size) \
+	if ( inputStr!=NULL ) { \
+		int n; \
+		for ( n = 0; inputStr[n] != '\0' && n<max_size; n++) \
+			buf[n] = (char) inputStr[n]; \
+		if(inputStr=='\0') inputStr = NULL; \
+		else inputStr = inputStr + n ; \
+		result = n; \
+	}else result = 0;  \
+
 %}
 
 blanks [ \t\v\h]+
@@ -53,15 +65,17 @@ blanks [ \t\v\h]+
 }
 
 [0-9]+ {
-    return VALUE_NUMBER;
+	int index = luaL_len(L_context, -1) + 1;
+	int value = atoi(yytext);
+	lua_pushinteger(L_context, value);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
+	printf("integer : %d %s\n", row, yytext);
+    return VALUE_INTEGER;
 }
 
 [0-9]+\.[0-9]+ {
-    return VALUE_NUMBER;
-}
-
-0x[0-9a-fA-F]+ {
-    return VALUE_NUMBER;
+    return VALUE_FLOAT;
 }
 
 \"(\\.|[^\\"])*\" {
@@ -81,6 +95,7 @@ blanks [ \t\v\h]+
 "String" return STRING;
 "Function" return FUNCTION;
 "Enum" return ENUM;
+"Class" return CLASS;
 
 "List" return LIST;
 "Map" return MAP;
@@ -106,14 +121,12 @@ blanks [ \t\v\h]+
 ";" return SEMICOLON;
 
 [a-zA-Z_][a-zA-Z0-9_]* {
-    lua_getfield(L_context, LUA_REGISTRYINDEX, "node");
 	int index = luaL_len(L_context, -1) + 1;
 	int len = strlen(yytext);
 	lua_pushlstring(L_context, yytext,len);
 	lua_rawseti(L_context, -2, index);
 	yylval = index;
-	lua_pop(L_context,1);
-	printf("%d %s\n", row, yytext);
+	printf("string : %d %s\n", row, yytext);
 	return ID;
 }
 
