@@ -1,21 +1,5 @@
 local cjson = require "cjson"
-local subParser = require "sub/subParser"
-local idDictStack = {}
-
-local function headIDDict()
-	return idDictStack[#idDictStack]
-end
-
-local function newIDDict()
-	local idDict = {}
-	idDictStack[#idDictStack + 1] = idDict
-	return idDict
-end
-local function popIDDict()
-	local idDict = idDictStack[#idDictStack]
-	idDictStack[#idDictStack] = nil
-	return idDict
-end
+local idMeta = require "idMeta"
 
 local function travelIDList(node)
 	for k,v in pairs(node) do
@@ -31,6 +15,13 @@ local function nodeInfo(node)
 	else
 		return "id|"..node
 	end
+end
+
+local function logWarning(node, ...)
+	print("[WARNING]",node.__row,nodeInfo(node), ...)
+end
+local function logError(node, ...)
+	print("[ERROR]",node.__row,nodeInfo(node), ...)
 end
 local travel = nil
 local travelCheckType = function(node, vType)
@@ -53,88 +44,121 @@ end
 travelDict={
 	stmt={
 		["for"]=function(node)
-			local idList = {}
-			local list1 = travelCheckType(node.head, "for_head")
-			local list2 = travelCheckType(node.block, "stmt_list")
-			for k,v in pairs(list1) do
-				idList[#idList + 1] = v
-			end
-			for k,v in pairs(list2) do
-				idList[#idList + 1] = v
-			end
-			print(nodeInfo(node), cjson.encode(idList))
+			idMeta:getin()
+			travelCheckType(node.head, "for_head")
+			travelCheckType(node.block, "stmt_list")
+			print("for node:", node.row, cjson.encode(idMeta:getLocalList()))
+			idMeta:getout()
 		end,
 		["while"]=function(node)
-			local list = travelCheckType(node.head, "stmt_list")
-			print(nodeInfo(node), cjson.encode(idList))
+			idMeta:getin()
+			travelCheckType(node.head, "expr_list")
+			travelCheckType(node.block, "stmt_list")
+			print("while node:", node.row, cjson.encode(idMeta:getLocalList()))
+			idMeta:getout()
+			--print(nodeInfo(node), cjson.encode(idList))
 		end,
 		["local"]=function(node)
-			local idList = {}
 			if node.id_list then
-				for k,v in ipairs(node.id_list) do
-					idList[#idList + 1] = v
-				end
 				if node.expr_list then
 					travel(node.expr_list)
 				end
+				for k,v in ipairs(node.id_list) do
+					idMeta:setlocal(v, node)
+				end
 			elseif node.id then
-				idList = {node.id}
+				idMeta:setlocal(node.id, node)
 				travel(node.argv)
-				local subList = travel(node.block)
-				print(nodeInfo(node.block), cjson.encode(subList))
+				travel(node.block)
 			end
 
 			if node.deco_buffer then
 				local inBuffer = node.deco_buffer:sub(4)
 				local minusIndex = inBuffer:find("-")
 				inBuffer=inBuffer:sub(1, minusIndex+1)
-				print("============= deco" , inBuffer)
-				subParser:parseScript(node.row, inBuffer)
+				-- subParser:parseScript(node.row, inBuffer)
 			end
-			return idList
 		end,
 		["deco_declare"]=function(node)
 			local inBuffer = node.buffer
 			inBuffer = inBuffer:sub(6, #inBuffer-2)
-			print("============= declare" , inBuffer)
-			subParser:parseScript(node.row, inBuffer)
-		end
+			-- subParser:parseScript(node.row, inBuffer)
+		end,
+		["assign"]=function(node)
+			travel(node.var_list)
+			travel(node.expr_list)
+			local varList = node.var_list
+			local exprList = node.expr_list
+			if #varList ~= #exprList then
+				logWarning(node, "var list length ~= expr list length")
+			else
+				for i=1,#varList do
+					local varNode = varList[i]
+				end
+			end
+		end,
+		--[[["function_call"]=function(node)
+			error("TODO")
+		end]]
 	},
 	for_head={
 		["in"]=function(node)
-			local idList = {}
-			for k,v in ipairs(node.id_list) do
-				idList[#idList + 1] = v
-			end
 			travel(node.expr)
-			return idList
+			for k,v in ipairs(node.id_list) do
+				idMeta:setlocal(v, node)
+			end
 		end,
 		["eqa"]=function(node)
-			local idList = {node.id}
 			travel(node.expr_list)
-			return idList
+			idMeta:setlocal(node.id, node)
 		end,
 	},
 	stmt_list=function(node)
-		local idList = {}
-		for k,subNode in ipairs(node) do
+		for k, subNode in ipairs(node) do
 			-- print(nodeInfo(node))
 			if subNode.__type == "stmt" and subNode.__subtype == "local" then
-				local list = travelCheckTypeSubType(subNode, "stmt", "local")
-				for k,v in pairs(list) do
-					idList[#idList + 1] = v
-				end
+				travelCheckTypeSubType(subNode, "stmt", "local")
 			else
 				travelCheckType(subNode, "stmt")
 			end
 		end
-		return idList
 	end,
 	var_list=function(node)
 		for k,v in ipairs(node) do
 			travelCheckType(v, "var")
 		end
 	end,
+	var={
+		["id"]=function(node)
+			if not idMeta:searchID(node.id) then
+				print("undefined id:",cjson.encode(node))
+			end
+		end
+	},
+	expr={
+		["value"]=function(node)
+			travel(node.value)
+			node.type_right = node.value.type_right
+		end
+	},
+	value={
+		["string"]=function(node)
+			node.type_right="String"
+		end,
+		["number"]=function(node)
+			node.type_right="Number"
+		end,
+		["true"]=function(node)
+			node.type_right="Boolean"
+		end,
+		["false"]=function(node)
+			node.type_right="Boolean"
+		end,
+		["nil"]=function(node)
+			node.type_right="Nil"
+		end,
+	}
+
 }
 
 travel = function (node)
