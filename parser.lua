@@ -1,10 +1,15 @@
 local cjson = require "cjson"
 local parser = require "decoParser"
 local travel = require "travel"
-local subParser = require "sub/subParser"
 
 local mem = {}
-fileOpen = io.open("skynet.lua")
+
+if not arg[1] then
+	print("usage: lua parser.lua xxx")
+	return
+end
+
+local fileOpen = io.open(arg[1])
 local script = fileOpen:read("a")
 fileOpen:close()
 parser.parse(script, mem)
@@ -40,6 +45,4 @@ copyRef(ast, root)
 
 travel(ast)
 
---idMeta  = require "idMeta"
---idMeta:show()
-
+uvTree.firstTable:show(1)

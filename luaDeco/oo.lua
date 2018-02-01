@@ -1,5 +1,5 @@
 -- oo with meta method
-function class(super)
+local function class(super)
     local class_type={}
     class_type.ctor=false
     class_type.super=super
@@ -49,8 +49,13 @@ function class(super)
 			else
 				t.__index[k] = v
 			end
+		end,
+		__index=function(t,k)
+			return t.__index[k]
 		end
 	})
 
     return class_type
 end
+
+return class

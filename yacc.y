@@ -137,6 +137,7 @@ stmt : DECO_DECLARE {
     | BREAK {
 		$$ = new_obj("stmt", "break");
 	}
+    | stmt SEMICOLON { $$ = $1; }
 
 assign_stmt : var_list EQA expr_list {
 			int tableIndex = new_obj("stmt", "assign");
@@ -372,6 +373,7 @@ binary_op: OR  { $$ = new_obj("bop","or"); }
     | MUL { $$ = new_obj("bop","*"); }
     | DIV { $$ = new_obj("bop","/"); }
     | MOD { $$ = new_obj("bop","%"); }
+    | POWER { $$ = new_obj("bop","^"); }
     | EQ { $$ = new_obj("bop","=="); }
     | NE { $$ = new_obj("bop","~="); }
     | LE { $$ = new_obj("bop","<="); }
@@ -440,7 +442,7 @@ key_value : id EQA expr {
 		  $$ = tableIndex;
 		  table_set(tableIndex, "expr", $1);
 	}
-	| LEFT_BRACKET value RIGHT_BRACKET EQA expr {
+	| LEFT_BRACKET expr RIGHT_BRACKET EQA expr {
 		  int tableIndex = new_obj("kv","[value]=expr");
 		  $$ = tableIndex;
 		  table_set(tableIndex, "value", $2);

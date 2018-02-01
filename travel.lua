@@ -1,5 +1,7 @@
 local cjson = require "cjson"
-local idMeta = require "idMeta"
+local UVTree = require "uvTree"
+
+uvTree = UVTree.newDefault()
 
 local function travelIDList(node)
 	for k,v in pairs(node) do
@@ -44,18 +46,18 @@ end
 travelDict={
 	stmt={
 		["for"]=function(node)
-			idMeta:getin()
+			uvTree:getin(node)
 			travelCheckType(node.head, "for_head")
 			travelCheckType(node.block, "stmt_list")
-			print("for node:", node.row, cjson.encode(idMeta:getLocalList()))
-			idMeta:getout()
+			-- print("for node:", node.row, cjson.encode(idMeta:getLocalList()))
+			uvTree:getout()
 		end,
 		["while"]=function(node)
-			idMeta:getin()
+			uvTree:getin(node)
 			travelCheckType(node.head, "expr_list")
 			travelCheckType(node.block, "stmt_list")
-			print("while node:", node.row, cjson.encode(idMeta:getLocalList()))
-			idMeta:getout()
+			-- print("while node:", node.row, cjson.encode(idMeta:getLocalList()))
+			uvTree:getout()
 			--print(nodeInfo(node), cjson.encode(idList))
 		end,
 		["local"]=function(node)
@@ -64,10 +66,10 @@ travelDict={
 					travel(node.expr_list)
 				end
 				for k,v in ipairs(node.id_list) do
-					idMeta:setlocal(v, node)
+					uvTree:putid(v, node)
 				end
 			elseif node.id then
-				idMeta:setlocal(node.id, node)
+				uvTree:putid(node.id, node)
 				travel(node.argv)
 				travel(node.block)
 			end
@@ -97,6 +99,12 @@ travelDict={
 				end
 			end
 		end,
+		["function"]=function(node)
+			uvTree:getin(node)
+			travel(node.head)
+			travel(node.block)
+			uvTree:getout()
+		end,
 		--[[["function_call"]=function(node)
 			error("TODO")
 		end]]
@@ -105,12 +113,12 @@ travelDict={
 		["in"]=function(node)
 			travel(node.expr)
 			for k,v in ipairs(node.id_list) do
-				idMeta:setlocal(v, node)
+				uvTree:putid(v, node)
 			end
 		end,
 		["eqa"]=function(node)
 			travel(node.expr_list)
-			idMeta:setlocal(node.id, node)
+			uvTree:putid(node.id, node)
 		end,
 	},
 	stmt_list=function(node)
@@ -130,7 +138,7 @@ travelDict={
 	end,
 	var={
 		["id"]=function(node)
-			if not idMeta:searchID(node.id) then
+			if not uvTree:search(node.id) then
 				print("undefined id:",cjson.encode(node))
 			end
 		end
@@ -157,7 +165,36 @@ travelDict={
 		["nil"]=function(node)
 			node.type_right="Nil"
 		end,
+	},
+	function_head={
+		["var"]=function(node)
+			travel(node.var)
+			travel(node.argv)
+		end,
+		[":id"]=function(node)
+			uvTree:putid("self",nil)
+			travel(node.var)
+			travel(node.argv)
+		end
+	},
+
+	argv={
+		["()"]=function(node)
+		end,
+		["(...)"]=function(node)
+		end,
+		["list"]=function(node)
+			for k,v in ipairs(node.id_list) do
+				uvTree:putid(v, node)
+			end
+		end,
+		["list,..."]=function(node)
+			for k,v in ipairs(node.id_list) do
+				uvTree:putid(v, node)
+			end
+		end,
 	}
+
 
 }
 
