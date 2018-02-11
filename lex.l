@@ -140,12 +140,16 @@ blanks [ \t\v\h]+
 "&" return BITAND;
 "~" return BITNOT;
 
+">>" return SRR;
+"<<" return SLL;
+
 "==" return EQ;
 "~=" return NE;
 "<=" return LE;
 ">=" return GE;
 ">" return GT;
 "<" return LT;
+
 
  /* single */
 "." return DOT;

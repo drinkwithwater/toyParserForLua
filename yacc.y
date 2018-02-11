@@ -63,6 +63,8 @@
 	POWER "^"
     SHARP "#"
 
+	SRR ">>"
+	SLL "<<"
     EQ "=="
     NE "~="
     LE "<="
@@ -107,6 +109,12 @@ stmt : DECO_DECLARE {
 		 $$ = tableIndex;
 		 table_set(tableIndex, "buffer", $1);
 	 }
+    | stmt SEMICOLON { $$ = $1; }
+	| assign_stmt { $$ = $1; }
+    | function_call { $$ = $1; }
+    | BREAK {
+		$$ = new_obj("stmt", "break");
+	}
 	| DO block END { $$ = $2; }
     | while_head DO block END {
 		int tableIndex = new_obj("stmt", "while");
@@ -114,13 +122,13 @@ stmt : DECO_DECLARE {
 		table_set(tableIndex, "head", $1);
 		table_set(tableIndex, "block", $3);
 	}
+    | if_stmt { $$ = $1; }
     | for_head DO block END {
 		int tableIndex = new_obj("stmt", "for");
 		$$ = tableIndex;
 		table_set(tableIndex, "head", $1);
 		table_set(tableIndex, "block", $3);
 	}
-    | if_stmt { $$ = $1; }
     | local_stmt { $$ = $1; }
     | DECO_PREFIX local_stmt {
 		table_set($2, "deco_buffer", $1);
@@ -130,14 +138,8 @@ stmt : DECO_DECLARE {
 		table_set($1, "deco_buffer", $2);
 		$$ = $1;
 	}
-	| assign_stmt { $$ = $1; }
     | function_stmt { $$ = $1; }
-    | function_call { $$ = $1; }
     | ret_stmt { $$ = $1; }
-    | BREAK {
-		$$ = new_obj("stmt", "break");
-	}
-    | stmt SEMICOLON { $$ = $1; }
 
 assign_stmt : var_list EQA expr_list {
 			int tableIndex = new_obj("stmt", "assign");
@@ -374,6 +376,8 @@ binary_op: OR  { $$ = new_obj("bop","or"); }
     | DIV { $$ = new_obj("bop","/"); }
     | MOD { $$ = new_obj("bop","%"); }
     | POWER { $$ = new_obj("bop","^"); }
+    | SRR { $$ = new_obj("bop",">>"); }
+    | SLL { $$ = new_obj("bop","<<"); }
     | EQ { $$ = new_obj("bop","=="); }
     | NE { $$ = new_obj("bop","~="); }
     | LE { $$ = new_obj("bop","<="); }
