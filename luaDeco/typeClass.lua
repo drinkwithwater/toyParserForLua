@@ -1,4 +1,4 @@
-require "oo"
+local class = require "luaDeco/oo"
 
 local DecoType = nil
 local SimpleType = nil
@@ -55,10 +55,20 @@ end
 
 function FunctionType:setArgTuple(...)
 	self.mArgvTuple = table.pack(...)
+	self.mArgvTuple.n = nil
 end
 
 function FunctionType:setRetTuple(...)
 	self.mRetTuple = table.pack(...)
+	self.mRetTuple.n = nil
+end
+
+local function typeAssetWarning(leftType, rightType, info)
+	-- TODO use |
+	if leftType ~= rightType then
+		local str=string.format("[WARNING] left=%s right=%s %s", leftType,rightType,info)
+		print(str)
+	end
 end
 
 return {
@@ -66,5 +76,6 @@ return {
 	SimpleType = SimpleType,
 	FunctionType = FunctionType,
 	ClassType = ClassType,
-	MixType = MixType
+	MixType = MixType,
+	typeAssetWarning = typeAssetWarning
 }
