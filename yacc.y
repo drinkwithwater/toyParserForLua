@@ -110,35 +110,40 @@ stmt : DECO_DECLARE {
 		 table_set(tableIndex, "buffer", $1);
 	 }
     | stmt SEMICOLON { $$ = $1; }
-	| assign_stmt { $$ = $1; }
-    | function_call { $$ = $1; }
     | BREAK {
 		$$ = new_obj("stmt", "break");
 	}
-	| DO block END { $$ = $2; }
-    | while_head DO block END {
-		int tableIndex = new_obj("stmt", "while");
+	| DO block END {
+		int tableIndex = new_obj("stmt", "do");
 		$$ = tableIndex;
-		table_set(tableIndex, "head", $1);
-		table_set(tableIndex, "block", $3);
+		table_set(tableIndex, "block", $2);
 	}
-    | if_stmt { $$ = $1; }
     | for_head DO block END {
 		int tableIndex = new_obj("stmt", "for");
 		$$ = tableIndex;
 		table_set(tableIndex, "head", $1);
 		table_set(tableIndex, "block", $3);
 	}
+    | while_head DO block END {
+		int tableIndex = new_obj("stmt", "while");
+		$$ = tableIndex;
+		table_set(tableIndex, "head", $1);
+		table_set(tableIndex, "block", $3);
+	}
     | local_stmt { $$ = $1; }
-    | DECO_PREFIX local_stmt {
-		table_set($2, "deco_buffer", $1);
-		$$ = $2;
-	}
-    | local_stmt DECO_SUFFIX {
-		table_set($1, "deco_buffer", $2);
-		$$ = $1;
-	}
+    | DECO_PREFIX local_stmt { table_set($2, "deco_buffer", $1); $$ = $2; }
+    | local_stmt DECO_SUFFIX { table_set($1, "deco_buffer", $2); $$ = $1; }
+
+	| assign_stmt { $$ = $1; }
+	| DECO_PREFIX assign_stmt { table_set($2, "deco_buffer", $1); $$ = $2; }
+	| assign_stmt DECO_SUFFIX { table_set($1, "deco_buffer", $2); $$ = $1; }
+
     | function_stmt { $$ = $1; }
+	| DECO_PREFIX function_stmt { table_set($2, "deco_buffer", $1); $$ = $2; }
+	| function_stmt DECO_SUFFIX { table_set($1, "deco_buffer", $2); $$ = $1; }
+
+    | function_call { $$ = $1; }
+    | if_stmt { $$ = $1; }
     | ret_stmt { $$ = $1; }
 
 assign_stmt : var_list EQA expr_list {
@@ -419,7 +424,11 @@ id_list : id {
 		$$ = $1;
 	}
 
-id : ID {$$ = $1;}
+id : ID {
+	   int tableIndex = new_obj("id", NULL);
+	   $$ = tableIndex;
+	   table_set(tableIndex, "name", $1);
+   }
 
 table : LEFT_BRACE RIGHT_BRACE { $$=new_obj("key_value_list", NULL); }
 	| LEFT_BRACE key_value_list RIGHT_BRACE { $$=$2; }
@@ -457,7 +466,7 @@ key_value : id EQA expr {
 %%
 
 void yyerror(char *s) {
-    fprintf(stderr, "col=%d, row=%d %s\n", col, row, s);
+    fprintf(stderr, "row=%d, col=%d %s\n", row, col, s);
 }
 
 
