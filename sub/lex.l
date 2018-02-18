@@ -97,6 +97,7 @@ blanks [ \t\v\h]+
 "Enum" return ENUM;
 "Class" return CLASS;
 
+"Tuple" return TUPLE;
 "List" return LIST;
 "Map" return MAP;
 
@@ -129,7 +130,6 @@ blanks [ \t\v\h]+
 	lua_pushlstring(L_context, yytext,len);
 	lua_rawseti(L_context, -2, index);
 	yylval = index;
-	printf("string : %d %s\n", row, yytext);
 	return ID;
 }
 

@@ -20,10 +20,10 @@ function decorator:init()
 	self.classDict={}
 end
 
-function decorator:parseScript(script)
+function decorator:parseScript(row, script)
 	local mem = {}
 	-- parse, save result in mem
-	sub.parse(script, mem)
+	sub.parse(row, script, mem)
 	local root = mem[mem[#mem]]
 
 	local function copyRef(astNode, srcNode)
@@ -45,8 +45,8 @@ function decorator:parseScript(script)
 	copyRef(ast, root)
 
 	-- return decorator
-	if ast.__type == "decorator" then
-		return ast.deco_type
+	if ast.__type then
+		return ast
 	else
 		-- save declare list
 		for k,v in pairs(ast) do
@@ -84,13 +84,13 @@ interface dosth2 {
 ]]
 
 local script3=[[
-Number ;
+	(Number) . (Number) -<
 ]]
 
 decorator:init()
-decorator:parseScript(script)
-decorator:parseScript(script2)
-local deco_type = decorator:parseScript(script3)
+decorator:parseScript(1, script)
+decorator:parseScript(10, script2)
+local deco_type = decorator:parseScript(15, script3)
 print(cjson.encode(deco_type))
 print(NodeCheck.simpleCheck(deco_type, "Number"))
 -- decorator:show()

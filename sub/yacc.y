@@ -56,7 +56,7 @@
     ;
 
 %token VALUE_INTEGER VALUE_FLOAT VALUE_STRING
-%token NIL BOOLEAN NUMBER STRING FUNCTION LIST MAP INTERFACE ENUM CLASS
+%token NIL BOOLEAN NUMBER STRING FUNCTION LIST MAP INTERFACE ENUM CLASS TUPLE
 %token ID
 
 %%
@@ -178,7 +178,7 @@ enum_type : ENUM id {
 		  }
 
 
-function_type : argv COLON argv {
+function_type : argv DOT argv {
 				  int tableIndex = new_obj();
 				  $$=tableIndex;
 				  set_type(tableIndex, "type");
