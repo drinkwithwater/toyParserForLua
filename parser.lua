@@ -1,6 +1,8 @@
 local cjson = require "cjson"
 local parser = require "decoParser"
 local travel = require "travel"
+local seri = require "seri"
+local astSeri = require "astSeri"
 
 local mem = {}
 
@@ -23,7 +25,7 @@ local ast = {}
 
 local function copyRef(astNode, node)
 	for k,v in pairs(node) do
-		if k=="__subtype" or k=="__type"  or k=="col" or k=="row" then
+		if k=="__subtype" or k=="__type"  or k=="__col" or k=="__row" then
 			astNode[k] = v
 		else
 			if type(v) == "number" then
@@ -43,6 +45,13 @@ end
 
 copyRef(ast, root)
 
-travel(ast)
+local posTravel = require  "posTravel"
+posTravel(ast)
 
-uvTree.firstTable:show(1)
+local decoTravel = require  "decoTravel"
+decoTravel(ast)
+-- travel(ast)
+
+print(astSeri(ast))
+--print(seri(ast))
+--uvTree.firstTable:show(1)

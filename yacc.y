@@ -508,13 +508,13 @@ int new_obj(char* type, char* subType){
 		lua_rawset(L_context, -3);
 	}
 
-	//obj.col = col;
-	lua_pushlstring(L_context,"col",3);
+	//obj.__col = col;
+	lua_pushlstring(L_context,"__col",5);
 	lua_pushinteger(L_context,col);
 	lua_rawset(L_context, -3);
 
-	//obj.row = row;
-	lua_pushlstring(L_context,"row",3);
+	//obj.__row = row;
+	lua_pushlstring(L_context,"__row",5);
 	lua_pushinteger(L_context,row);
 	lua_rawset(L_context, -3);
 

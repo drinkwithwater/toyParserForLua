@@ -3,7 +3,7 @@ local class = require "luaDeco/oo"
 local function nodeInfo(node)
 	if type(node)=="table" then
 		local a = node.__type .. ((node.__subtype and "."..node.__subtype) or "")
-		local b = string.format("[%d,%d]", node.row, node.col)
+		local b = string.format("[%d,%d]", node.__row, node.__col)
 		return b..a
 	else
 		return "id|"..node

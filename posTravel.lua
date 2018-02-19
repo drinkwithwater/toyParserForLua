@@ -1,11 +1,12 @@
 local cjson = require "cjson"
 local log = require "log"
 
+
 local travel = nil
 local rawtravel = nil
 local function setPos(nodeFather, nodeChild)
-	nodeFather.col = 0
-	nodeFather.row = nodeChild.row
+	nodeFather.__col = 0
+	nodeFather.__row = nodeChild.__row
 end
 
 local travelDict={
@@ -56,28 +57,7 @@ local travelDict={
 	},
 }
 
-travel = function (node)
-	local nType = node.__type
-	local nSubType = node.__subtype
-	if nType and nSubType and travelDict[nType] and travelDict[nType][nSubType] then
-		return travelDict[nType][nSubType](node)
-	elseif nType and not nSubType and travelDict[nType] then
-		return travelDict[nType](node)
-	else
-		-- print(nType, nSubType, "not define")
-		for k,v in pairs(node) do
-			if type(v) == "table" then
-				travel(v)
-			end
-		end
-	end
-end
-rawtravel = function(node)
-	for k,v in pairs(node) do
-		if type(v) == "table" then
-			travel(v)
-		end
-	end
-end
+local travelFactory = require "travelFactory"
+travel, rawtravel = travelFactory.create(travelDict)
 
 return travel

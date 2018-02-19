@@ -28,13 +28,13 @@ local travelDict={
 					return
 				else
 					local decoNode = node.id_list[1]
-					decoNode.type_left = block()
+					decoNode.__type_left = block()
 				end
 			elseif node.id then
 				local decoNode = node.id
 				local funcType = block()
 				-- deco node.id
-				decoNode.type_left = funcType
+				decoNode.__type_left = funcType
 				-- deco node.argv.id_list
 				local argTypeTuple = funcType:getArgTuple()
 				if node.argv.__subtype=="list" then
@@ -44,7 +44,7 @@ local travelDict={
 						return
 					end
 					for k,v in pairs(argTypeTuple) do
-						idList[k].type_left = v
+						idList[k].__type_left = v
 					end
 				elseif node.argv.__subtype=="()" then
 					if #argTypeTuple~=0 then
@@ -77,28 +77,7 @@ local travelDict={
 	},
 }
 
-travel = function (node)
-	local nType = node.__type
-	local nSubType = node.__subtype
-	if nType and nSubType and travelDict[nType] and travelDict[nType][nSubType] then
-		return travelDict[nType][nSubType](node)
-	elseif nType and not nSubType and travelDict[nType] then
-		return travelDict[nType](node)
-	else
-		-- print(nType, nSubType, "not define")
-		for k,v in pairs(node) do
-			if type(v) == "table" then
-				travel(v)
-			end
-		end
-	end
-end
-rawtravel = function(node)
-	for k,v in pairs(node) do
-		if type(v) == "table" then
-			travel(v)
-		end
-	end
-end
+local travelFactory = require "travelFactory"
+travel, rawtravel = travelFactory.create(travelDict)
 
 return travel
