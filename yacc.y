@@ -185,11 +185,11 @@ while_head :
 	WHILE LEFT_PAREN expr RIGHT_PAREN { $$ = $3; }
 	| WHILE expr { $$ = $2; }
 
-for_head : FOR id_list IN expr {
+for_head : FOR id_list IN expr_list {
 		 int tableIndex = new_obj("for_head","in");
 		 $$ = tableIndex;
 		 table_set(tableIndex, "id_list", $2);
-		 table_set(tableIndex, "expr", $4);
+		 table_set(tableIndex, "expr_list", $4);
 	}
 	| FOR id EQA expr_list {
 		 int tableIndex = new_obj("for_head","eqa");
@@ -230,7 +230,7 @@ elseif_item : ELSEIF expr THEN block{
 			int tableIndex = new_obj("elseif_item",NULL);
 			$$ = tableIndex;
 			table_set(tableIndex, "expr", $2);
-			table_set(tableIndex, "expr", $4);
+			table_set(tableIndex, "block", $4);
 		}
 
 elseif_list : { $$=new_obj("elseif_list",NULL); }
@@ -246,7 +246,7 @@ if_stmt : IF expr THEN block elseif_list END {
 			table_set(tableIndex, "elseif_list", $5);
 		}
     | IF expr THEN block elseif_list ELSE block END {
-			int tableIndex = new_obj("stmt","if_else");
+			int tableIndex = new_obj("stmt","if");
 			$$ = tableIndex;
 			table_set(tableIndex, "expr", $2);
 			table_set(tableIndex, "block", $4);
