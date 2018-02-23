@@ -54,13 +54,21 @@ function FunctionType:ctor()
 end
 
 function FunctionType:setArgTuple(...)
-	self.mArgvTuple = table.pack(...)
-	self.mArgvTuple.n = nil
+	self.mArgTuple = table.pack(...)
+	self.mArgTuple.n = nil
 end
 
 function FunctionType:setRetTuple(...)
 	self.mRetTuple = table.pack(...)
 	self.mRetTuple.n = nil
+end
+
+function FunctionType:getArgTuple()
+	return self.mArgTuple
+end
+
+function FunctionType:getRetTuple()
+	return self.mRetTuple
 end
 
 local function typeAssetWarning(leftType, rightType, info)
