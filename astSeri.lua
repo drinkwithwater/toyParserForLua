@@ -28,8 +28,8 @@ local function serialize(obj, depth)
 	elseif t == "string" then
 		lua = lua .. string.format("%q", obj)
 	elseif t == "table" then
-		local typeStr = "("..(obj.__type or "")..","..(obj.__subtype or "")..""
-		lua = lua .." "..typeStr.." {"..newLine
+		local typeStr = "("..(obj.__type or "")..","..(obj.__subtype or "").."):"
+		lua = lua ..typeStr.." {"..newLine
 		for k, v in pairs(obj) do
 			if not key[k] then
 				local keyEq = "[".. serialize(k, -1) .. "]="
