@@ -22,29 +22,29 @@ local travelDict={
 			local last = buffer:find("!")
 			local content = buffer:sub(first+1,last-1)
 			local block = load("return "..content, "deco", "t", decoEnv)
-			if node.id_list then
-				if #node.id_list ~= 1 then
+			if node.name_list then
+				if #node.name_list ~= 1 then
 					logger.error(node, "this version only support 1 identifier in local stmt")
 					return
 				else
-					local decoNode = node.id_list[1]
+					local decoNode = node.name_list[1]
 					decoNode.__type_left = block()
 				end
-			elseif node.id then
-				local decoNode = node.id
+			elseif node.name then
+				local decoNode = node.name
 				local funcType = block()
-				-- deco node.id
+				-- deco node.name
 				decoNode.__type_left = funcType
-				-- deco node.argv.id_list
+				-- deco node.argv.name_list
 				local argTypeTuple = funcType:getArgTuple()
 				if node.argv.__subtype=="list" then
-					local idList = node.argv.id_list
-					if #argTypeTuple ~= #idList then
+					local nameList = node.argv.name_list
+					if #argTypeTuple ~= #nameList then
 						logger.error(node, "argv num exception")
 						return
 					end
 					for k,v in pairs(argTypeTuple) do
-						idList[k].__type_left = v
+						nameList[k].__type_left = v
 					end
 				elseif node.argv.__subtype=="()" then
 					if #argTypeTuple~=0 then

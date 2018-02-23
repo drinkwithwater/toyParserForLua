@@ -1,3 +1,4 @@
+local cjson = require "cjson"
 
 local function checkKeyValue(key, value)
 	if type(value) ~= "table" then
@@ -23,17 +24,18 @@ local function create(travelDict)
 	travel = function(node)
 		local nType = node.__type
 		local nSubType = node.__subtype
-		if nType and nSubType and travelDict[nType] and travelDict[nType][nSubType] then
-			return travelDict[nType][nSubType](node)
-		elseif nType and not nSubType and travelDict[nType] then
-			return travelDict[nType](node)
-		else
-			for k,v in pairs(node) do
-				if checkKeyValue(k,v) then
-					travel(v)
-				end
+		if nType and nSubType then
+			if type(travelDict[nType])=="table" and travelDict[nType][nSubType] then
+				return travelDict[nType][nSubType](node)
+			elseif type(travelDict[nType])=="function" then
+				return travelDict[nType](node)
+			end
+		elseif nType and not nSubType then
+			if type(travelDict[nType])=="function" then
+				return travelDict[nType](node)
 			end
 		end
+		return rawtravel(node)
 	end
 	return travel, rawtravel
 end

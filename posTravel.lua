@@ -28,10 +28,10 @@ local travelDict={
 		end,
 		["local"]=function(node)
 			rawtravel(node)
-			if node.id_list then
-				setPos(node, node.id_list)
-			elseif node.id then
-				setPos(node, node.id)
+			if node.name_list then
+				setPos(node, node.name_list)
+			elseif node.name then
+				setPos(node, node.name)
 			end
 		end,
 		["assign"]=function(node)
@@ -47,11 +47,7 @@ local travelDict={
 			setPos(node, node.prefix_exp)
 		end,
 		["if"]=function(node)
-			rawtravel(node.head)
-			setPos(node, node.expr)
-		end,
-		["if_else"]=function(node)
-			rawtravel(node.head)
+			rawtravel(node)
 			setPos(node, node.expr)
 		end,
 	},

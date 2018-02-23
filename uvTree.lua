@@ -1,4 +1,25 @@
 local class = require "luaDeco/oo"
+local seri = require "seri"
+
+---------------------------
+-- TableValue -------------
+-- used when id is table --
+-- TODO not used ... ------
+---------------------------
+local TableValue = class()
+function TableValue:ctor(name)
+	self.name = name
+	self.typeDict = {}
+	self.valueDict = {}
+end
+
+function TableValue:getTypeDict()
+	return self.typeDict
+end
+
+function TableValue:getValueDict()
+	return self.valueDict
+end
 
 ----------------------
 -- UpValue -----------
@@ -8,7 +29,11 @@ local UpValue = class()
 
 function UpValue:ctor(id, index)
 	self.index = index
+	self.subDict = {}
 	if type(id) == "table" then
+		if id.__type~="name" then
+			error("parse error ... upvalue not name when uvTree:putid")
+		end
 		self.idNode = id
 		self.name = id.name
 	elseif type(id) == "string" then
@@ -26,6 +51,23 @@ end
 
 function UpValue:getName()
 	return self.name
+end
+
+function UpValue:addKeyList(keyList)
+	local point = self.subDict
+	for k,v in ipairs(keyList) do
+		if type(point[v])=="table" then
+			point = point[v]
+		else
+			local newPoint = {}
+			point[v] = newPoint
+			point = newPoint
+		end
+	end
+end
+
+function UpValue:getSubDict()
+	return self.subDict
 end
 
 function UpValue:isNative()
@@ -67,24 +109,24 @@ function UpValueTable:getFather()
 	return self.father
 end
 
-function UpValueTable:search(id)
+function UpValueTable:search(name)
 	for k=#self.subList,1,-1 do
 		local cur = self.subList[k]
 		if UpValue.isClass(cur) then
-			if cur:getName() == id then
+			if cur:getName() == name then
 				return cur
 			end
 		end
 	end
 	if self.father then
-		return self.father:search(id)
+		return self.father:search(name)
 	end
 end
 
 function UpValueTable:show(i)
 	for k,v in pairs(self.subList) do
 		if UpValue.isClass(v) then
-			print(string.rep("  ",i)..v:getName())
+			print(string.rep("  ",i)..v:getName().." "..seri(v:getSubDict(),-1))
 		else
 			v:show(i+1)
 		end
@@ -138,6 +180,10 @@ end
 
 function UpValueTree:show()
 	self.root:show(0)
+end
+
+function UpValueTree:indexValue(index)
+	return self.uvIndexList[index]
 end
 
 return UpValueTree
