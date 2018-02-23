@@ -77,22 +77,47 @@ blanks [ \t\v\h]+
 }
 
 [0-9]+ {
+	int index = luaL_len(L_context, -1) + 1;
+	int len = strlen(yytext);
+	lua_pushlstring(L_context, yytext,len);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
     return NUMBER;
 }
 
 [0-9]+\.[0-9]+ {
+	int index = luaL_len(L_context, -1) + 1;
+	int len = strlen(yytext);
+	lua_pushlstring(L_context, yytext,len);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
     return NUMBER;
 }
 
 0x[0-9a-fA-F]+ {
+	int index = luaL_len(L_context, -1) + 1;
+	int len = strlen(yytext);
+	lua_pushlstring(L_context, yytext,len);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
     return NUMBER;
 }
 
 \"(\\.|[^\\"])*\" {
+	int index = luaL_len(L_context, -1) + 1;
+	int len = strlen(yytext);
+	lua_pushlstring(L_context, yytext+1, len-2);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
 	return STRING;
 }
 
 \'(\\.|[^\\'])*\' {
+	int index = luaL_len(L_context, -1) + 1;
+	int len = strlen(yytext);
+	lua_pushlstring(L_context, yytext+1, len-2);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
 	return STRING;
 }
 
@@ -166,7 +191,7 @@ blanks [ \t\v\h]+
 	lua_pushlstring(L_context, yytext,len);
 	lua_rawseti(L_context, -2, index);
 	yylval = index;
-	return ID;
+	return NAME;
 }
 
 
