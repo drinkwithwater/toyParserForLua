@@ -40,7 +40,7 @@ return function(ast)
 			end,
 			["function"]=function(node)
 				rawtravel(node)
-				setPos(node, node.head)
+				setPos(node, node.var_function)
 			end,
 			["function_call"]=function(node)
 				rawtravel(node)

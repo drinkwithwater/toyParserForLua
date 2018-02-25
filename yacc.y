@@ -198,11 +198,12 @@ for_head : FOR name_list IN expr_list {
 		 table_set(tableIndex, "expr_list", $4);
 	}
 
-function_stmt : function_head block END {
+function_stmt : FUNCTION var_function LEFT_PAREN argv RIGHT_PAREN block END {
 				 int tableIndex = new_obj("stmt","function");
 				 $$ = tableIndex;
-				 table_set(tableIndex, "head", $1);
-				 table_set(tableIndex, "block", $2);
+				 table_set(tableIndex, "var_function", $2);
+				 table_set(tableIndex, "argv", $4);
+				 table_set(tableIndex, "block", $6);
 			  }
 
 name_dot_list : name {
@@ -226,14 +227,6 @@ var_function : name_dot_list {
 				 table_set(tableIndex, "name_dot_list", $1);
 				 table_set(tableIndex, "name", $3);
 			 }
-
-function_head : FUNCTION var_function LEFT_PAREN argv RIGHT_PAREN {
-			 int tableIndex = new_obj("function_head",NULL);
-			 $$ = tableIndex;
-			 table_set(tableIndex, "var_function", $2);
-			 table_set(tableIndex, "argv", $4);
-			 //table_set(tableIndex, "self", {...});
-		  }
 
 function_lambda : FUNCTION LEFT_PAREN argv RIGHT_PAREN block END{
 			 int tableIndex = new_obj("function_lambda",NULL);

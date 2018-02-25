@@ -76,7 +76,18 @@ return function(ast)
 			end,
 			["function"]=function(node)
 				uvTree:getin(node)
-				travel(node.head)
+				travel(node.var_function)
+				if node.var_function.__subtype==":name" then
+					local selfNode = {
+						name="self",
+						__type="name",
+						__col=node.__col,
+						__row=node.__row,
+					}
+					node.argv.self = selfNode
+					selfNode.__index = uvTree:putid(selfNode)
+				end
+				travel(node.argv)
 				travel(node.block)
 				uvTree:getout()
 			end,
@@ -134,21 +145,6 @@ return function(ast)
 				node.name.__index = uvTree:putid(node.name)
 			end,
 		},
-		function_head=function(node)
-			-- TODO parse sub value
-			travel(node.var_function)
-			if node.var_function.__subtype==":name" then
-				local selfNode = {
-					name="self",
-					__type="name",
-					__col=node.__col,
-					__row=node.__row,
-				}
-				node.argv.self = selfNode
-				uvTree:putid(selfNode)
-			end
-			travel(node.argv)
-		end,
 		argv={
 			["()"]=function(node)
 			end,
