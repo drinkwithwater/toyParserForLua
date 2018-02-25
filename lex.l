@@ -50,7 +50,7 @@ blanks [ \t\v\h]+
 }
 
 
---@[^!\n]*!>[^\n]* {
+--@[^\;\n]* {
 	int index = luaL_len(L_context, -1) + 1;
 	int len = strlen(yytext);
 	lua_pushlstring(L_context, yytext,len);
@@ -59,7 +59,7 @@ blanks [ \t\v\h]+
 	return DECO_PREFIX;
 }
 
---@[^!\n]*!<[^\n]* {
+--@[^\;\n]*;[^\n]* {
 	int index = luaL_len(L_context, -1) + 1;
 	int len = strlen(yytext);
 	lua_pushlstring(L_context, yytext,len);

@@ -1,4 +1,4 @@
-local class = require "luaDeco/oo"
+local class = require "util/oo"
 local AstNode = class()
 
 function AstNode:ctor()

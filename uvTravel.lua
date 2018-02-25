@@ -214,9 +214,11 @@ return function(ast)
 					if uvValue then
 						local key_list = {}
 						for k,nameNode in ipairs(node.name_dot_list) do
-							key_list[k] = nameNode.name
+							if k>1 then
+								key_list[k-1] = nameNode.name
+							end
 						end
-						node.__index = uvValue.__index
+						node.__index = uvValue:getIndex()
 						node.__key_list = key_list
 						uvValue:addKeyList(node.__key_list)
 					else
@@ -233,10 +235,12 @@ return function(ast)
 					if uvValue then
 						local key_list = {}
 						for k,nameNode in ipairs(node.name_dot_list) do
-							key_list[k] = nameNode.name
+							if k>1 then
+								key_list[k-1] = nameNode.name
+							end
 						end
 						key_list[#key_list + 1] = node.name.name
-						node.__index = uvValue.__index
+						node.__index = uvValue:getIndex()
 						node.__key_list = key_list
 						uvValue:addKeyList(node.__key_list)
 					else

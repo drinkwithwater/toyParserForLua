@@ -1,24 +1,46 @@
-local class = require "luaDeco/oo"
+local class = require "util/oo"
 local seri = require "seri"
+local cjson = require "cjson"
 
----------------------------
--- TableValue -------------
--- used when id is table --
--- TODO not used ... ------
----------------------------
-local TableValue = class()
-function TableValue:ctor(name)
-	self.name = name
-	self.typeDict = {}
-	self.valueDict = {}
+local DecoSubDict = class()
+function DecoSubDict:ctor()
+	self[1] = nil
+	self[2] = {}
 end
 
-function TableValue:getTypeDict()
-	return self.typeDict
+--@Call(Table, Table).Return()
+function DecoSubDict:setKeyListDeco(keyList, decoClass)
+	if not keyList then
+		self[1] = decoClass
+	else
+		local pointer = self
+		for _, aKey in ipairs(keyList) do
+			local nextPointer = pointer[2][aKey]
+			if not nextPointer then
+				nextPointer = {nil, {}}
+				pointer[2][aKey] = nextPointer
+			end
+			pointer = nextPointer
+		end
+		pointer[1] = decoClass
+	end
 end
 
-function TableValue:getValueDict()
-	return self.valueDict
+--@Call(Table).Return()
+function DecoSubDict:getKeyListDeco(keyList)
+	if not keyList then
+		return self[1]
+	else
+		local pointer = self
+		for _, aKey in ipairs(keyList) do
+			local nextPointer = pointer[2][aKey]
+			if not nextPointer then
+				return nil
+			end
+			pointer = nextPointer
+		end
+		return pointer[1]
+	end
 end
 
 ----------------------
@@ -27,9 +49,11 @@ end
 -- 一个local变量
 local UpValue = class()
 
+--@Call(Table, Number).Return()
 function UpValue:ctor(id, index)
-	self.index = index
-	self.subDict = {}
+	self.index = index					--@Number ;
+	self.subDict = {}					--@Table ;
+	self.decoSubDict = DecoSubDict.new()
 	if type(id) == "table" then
 		if id.__type~="name" then
 			error("parse error ... upvalue not name when uvTree:putid")
@@ -41,6 +65,7 @@ function UpValue:ctor(id, index)
 	end
 end
 
+--@Call().Return(Number)
 function UpValue:getIndex()
 	return self.index
 end
@@ -66,8 +91,20 @@ function UpValue:addKeyList(keyList)
 	end
 end
 
+function UpValue:setKeyListDeco(keyList, decoClass)
+	self.decoSubDict:setKeyListDeco(keyList, decoClass)
+end
+
+function UpValue:getKeyListDeco(keyList, decoClass)
+	return self.decoSubDict:getKeyListDeco(keyList)
+end
+
 function UpValue:getSubDict()
 	return self.subDict
+end
+
+function UpValue:getDecoSubDict()
+	return self.decoSubDict
 end
 
 function UpValue:isNative()
@@ -126,7 +163,8 @@ end
 function UpValueTable:show(i)
 	for k,v in pairs(self.subList) do
 		if UpValue.isClass(v) then
-			print(string.rep("  ",i)..v:getName().." "..seri(v:getSubDict(),-1))
+			print(string.rep("  ",i)..v:getName().." "..cjson.encode(v:getDecoSubDict()))
+			-- print(string.rep("  ",i)..v:getName().." "..seri(v:getSubDict(), -1))
 		else
 			v:show(i+1)
 		end
