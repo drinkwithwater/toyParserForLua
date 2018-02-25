@@ -253,7 +253,7 @@ return function(ast)
 		},
 	}
 
-	local travelFactory = require "travelFactory"
+	local travelFactory = require "travel/travelFactory"
 	travel, rawtravel = travelFactory.create(travelDict)
 
 	travel(ast)

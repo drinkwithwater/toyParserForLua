@@ -8,9 +8,9 @@ SHARED = -fPIC --shared
 LDFLAGS =
 # -L$(BUILD_DIR) -Wl,-rpath $(BUILD_DIR)
 
-all: decoParser.so
+all: ../decoParser.so
 
-decoParser.so: yacc.c lex.c
+../decoParser.so: yacc.c lex.c
 	gcc $(CFLAGS) $(SHARED) $^ -o $@ $(LDFLAGS)
 
 yacc.o: yacc.c
@@ -26,6 +26,7 @@ lex.c: lex.l
 	flex -o $@ $^
 
 clean:
+	rm ../*.so
 	rm -rf *.o *.a *.so
 	rm yacc.c yacc.h
 	rm lex.c
