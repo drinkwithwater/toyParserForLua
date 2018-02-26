@@ -587,6 +587,8 @@ void table_set(int tableIndex, char* key, int subItemIndex){
 static int lparse(lua_State* L){
 	L_context = L;
 	size_t size = 0;
+	col = 1;
+	row = 1;
 	// row = luaL_checkinteger(L, 1);
 	inputStr = luaL_checklstring(L, 1, &size);
 	yyparse();
