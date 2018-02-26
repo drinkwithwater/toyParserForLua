@@ -4,7 +4,9 @@ local NodeLogger = require "nodeLogger"
 -- TODO set this as local
 local decoEnv = require "luaDeco/env"
 
-return function(ast, uvTree)
+return function(fileContext, globalContext)
+	local ast = fileContext:getAST()
+	local uvTree = fileContext:getUVTree()
 	local travel = nil
 	local rawtravel = nil
 	local logger = NodeLogger.new("decoTravel")
@@ -32,7 +34,7 @@ return function(ast, uvTree)
 			logger.error(decoNode, "node's uvValue not found when deco")
 			return false
 		end
-		uvValue:setKeyListDeco(decoNode.__key_list, decoClass)
+		uvValue:setKeyListDeco(decoNode.__key_list, decoClass:decorator(decoNode))
 		decoNode.__type_left = decoClass
 		return true
 	end

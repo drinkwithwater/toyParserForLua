@@ -2,11 +2,21 @@ local cjson = require "cjson"
 local decoParser = require "decoParser"
 local seri = require "seri"
 local astSeri = require "astSeri"
+local NodeLogger = require "nodeLogger"
 
+local log = require "log"
+local context = require "context"
 
-local function parse(fileName)
+local function parse(fileName, globalContext)
+
+	local fileOpen = io.open(fileName, "r")
+	if not fileOpen then
+		log.error(fileName.." not found")
+		return nil
+	else
+		log.info("----- parsing "..fileName.." -----")
+	end
 	local mem = {}
-	local fileOpen = io.open(fileName)
 	local script = fileOpen:read("a")
 	fileOpen:close()
 	decoParser.parse(script, mem)
@@ -32,7 +42,7 @@ local function parse(fileName)
 						copyRef(astNode[k], subNode)
 					end
 				else
-					print("ast exception")
+					log.error("ast exception")
 				end
 			end
 		end
@@ -40,17 +50,23 @@ local function parse(fileName)
 
 	copyRef(ast, root)
 
+	local globalContext = globalContext or context.GlobalContext.new()
+	local fileContext = context.FileContext.new()
+
+	fileContext:setAST(ast)
+
 	local posTravel = require  "travel/posTravel"
-	posTravel(ast)
+	posTravel(fileContext, globalContext)
 
 	local uvTravel = require  "travel/uvTravel"
-	local uvTree = uvTravel(ast)
+	uvTravel(fileContext, globalContext)
 
 	local decoTravel = require  "travel/decoTravel"
-	decoTravel(ast, uvTree)
+	decoTravel(fileContext, globalContext)
 
-	uvTree.firstTable:show(1)
-	print(astSeri(ast))
+	fileContext:getUVTree().firstTable:show(1)
+	log.info(astSeri(ast))
+	return fileContext, globalContext
 end
 
 return {

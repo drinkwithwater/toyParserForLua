@@ -13,6 +13,10 @@ function DecoType:__bor(vLeft, vRight)
 	MixType:add(vRight)
 end
 
+function DecoType:decorator(node)
+	return self
+end
+
 SimpleType = class(DecoType)
 
 function SimpleType:ctor(vTypeStr)

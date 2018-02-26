@@ -3,9 +3,9 @@ local UVTree = require "uvTree"
 local NodeLogger = require "nodeLogger"
 local AstNode = require "astNode"
 
-return function(ast)
+return function(fileContext, globalContext)
+	local uvTree = UVTree.new(globalContext:getGlobalValue())
 	local log = NodeLogger.new("uvTravel")
-	local uvTree = UVTree.newDefault()
 
 	local travel = nil
 	local rawtravel = nil
@@ -256,6 +256,6 @@ return function(ast)
 	local travelFactory = require "travel/travelFactory"
 	travel, rawtravel = travelFactory.create(travelDict)
 
-	travel(ast)
-	return uvTree
+	travel(fileContext:getAST())
+	fileContext:setUVTree(uvTree)
 end

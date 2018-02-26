@@ -5,5 +5,4 @@ if not arg[1] then
 else
 	local parser = require "parser"
 	parser.parse(arg[1])
-	parser.parse(arg[2])
 end

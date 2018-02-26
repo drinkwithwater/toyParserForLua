@@ -176,9 +176,9 @@ end
 -----------------------
 local UpValueTree = class()
 
-function UpValueTree:ctor(chunkNode, envTable)
-	self.root = envTable or UpValueTable.new()
-	self.curTable = self.root:createChild(chunkNode)
+function UpValueTree:ctor(globalValue)
+	self.globalValue = globalValue
+	self.curTable = UpValueTable.new()
 	self.firstTable = self.curTable
 	self.uvIndexList = {}
 end
@@ -204,16 +204,9 @@ function UpValueTree:search(id)
 	return self.curTable:search(id)
 end
 
-function UpValueTree.newDefault()
-	local envTable = UpValueTable.new()
-	local uvTree = UpValueTree.new(nil, envTable)
-	for k,v in pairs(_G) do
-		--local newIndex = #uvTree.uvIndexList + 1
-		--local uv = UpValue.new(k, newIndex)
-		--uvTree.uvIndexList[newIndex] = uv
-		--envTable:addUpValue(uv)
-	end
-	return uvTree
+function UpValueTree.createGlobalValue()
+	local globalValue = UpValue.new("_G", -1)
+	return globalValue
 end
 
 function UpValueTree:show()

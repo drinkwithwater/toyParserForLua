@@ -1,7 +1,7 @@
 local cjson = require "cjson"
-local log = require "log"
 
-return function(ast)
+return function(fileContext, globalContext)
+	local ast = fileContext:getAST()
 	local travel = nil
 	local rawtravel = nil
 	local function setPos(nodeFather, nodeChild)
