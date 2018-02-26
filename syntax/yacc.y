@@ -375,7 +375,7 @@ args : STRING {
 	| LEFT_PAREN expr_list RIGHT_PAREN {
 		int tableIndex = new_obj("args", "(expr_list)");
 		$$ = tableIndex;
-		table_set(tableIndex, "expr_list", $1);
+		table_set(tableIndex, "expr_list", $2);
 	}
 
 function_call : prefix_exp args {
