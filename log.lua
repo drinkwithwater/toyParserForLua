@@ -9,7 +9,7 @@ function log.error(...)
 end
 
 function log.info(...)
-	print("[info]", ...)
+	print("[INFO]", ...)
 end
 
 return log

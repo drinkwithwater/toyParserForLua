@@ -51,9 +51,7 @@ local function parse(fileName, globalContext)
 	copyRef(ast, root)
 
 	local globalContext = globalContext or context.GlobalContext.new()
-	local fileContext = context.FileContext.new()
-
-	fileContext:setAST(ast)
+	local fileContext = context.FileContext.new(ast)
 
 	local posTravel = require  "travel/posTravel"
 	posTravel(fileContext, globalContext)

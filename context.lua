@@ -3,9 +3,10 @@ local class = require "util/oo"
 
 local FileContext = class()
 
-function FileContext:ctor()
+function FileContext:ctor(ast)
 	self.uvTree = nil
-	self.ast = nil
+	self.ast = ast
+	self.declareDict = {}
 end
 
 function FileContext:getUVTree()
@@ -20,8 +21,20 @@ function FileContext:getAST()
 	return self.ast
 end
 
-function FileContext:setAST(ast)
-	self.ast = ast
+function FileContext:setDeclare(name, declare)
+	self.declareDict[name] = declare
+end
+
+function FileContext:getDeclare(name)
+	return self.declareDict[name]
+end
+
+function FileContext:getDeclareDict()
+	return self.declareDict
+end
+
+function FileContext:getLastAstNode()
+	return self.ast[#self.ast]
 end
 
 local GlobalContext = class()

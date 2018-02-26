@@ -61,7 +61,7 @@ return function(fileContext, globalContext)
 				local subFileContext = globalContext:getFileContext(fileBody)
 				if subFileContext then
 					-- has bee parsed...
-					node.require = fileBody
+					node.__require = fileBody
 				else
 					-- parse it !!!
 					local fileName = fileBody..".lua"
@@ -69,7 +69,7 @@ return function(fileContext, globalContext)
 					local subFileContext = parser.parse(fileName, globalContext)
 					if subFileContext then
 						globalContext:setFileContext(fileBody, subFileContext)
-						node.require = fileBody
+						node.__require = fileBody
 					else
 						logger.error(node, fileBody.." require failed...")
 					end

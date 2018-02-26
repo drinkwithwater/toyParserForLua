@@ -17,6 +17,9 @@ function AstNode:ctor()
 
 	-- item for a.b.c...
 	self.__key_list = nil
+
+	-- item for function_call
+	self.__require = nil
 end
 
 AstNode.ID_OPER_DEF = 1
