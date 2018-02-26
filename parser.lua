@@ -56,14 +56,17 @@ local function parse(fileName, globalContext)
 	local posTravel = require  "travel/posTravel"
 	posTravel(fileContext, globalContext)
 
-	local staticRequireTravel = require  "travel/staticRequireTravel"
-	staticRequireTravel(fileContext, globalContext)
+	--local staticRequireTravel = require  "travel/staticRequireTravel"
+	--staticRequireTravel(fileContext, globalContext)
 
 	local uvTravel = require  "travel/uvTravel"
 	uvTravel(fileContext, globalContext)
 
 	local decoTravel = require  "travel/decoTravel"
 	decoTravel(fileContext, globalContext)
+
+	local deduceTravel = require  "travel/deduceTravel"
+	deduceTravel(fileContext, globalContext)
 
 	fileContext:getUVTree().firstTable:show(1)
 	log.info(astSeri(ast))

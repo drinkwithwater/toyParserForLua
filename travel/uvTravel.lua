@@ -3,6 +3,8 @@ local UVTree = require "uvTree"
 local NodeLogger = require "nodeLogger"
 local AstNode = require "astNode"
 
+--TODO get uv index for (expr)
+
 return function(fileContext, globalContext)
 	local uvTree = UVTree.new(globalContext:getGlobalValue())
 	local log = NodeLogger.new("uvTravel")
@@ -122,6 +124,11 @@ return function(fileContext, globalContext)
 						setKeyList(node, node.prefix_exp, node.name.name)
 						local uvValue = uvTree:indexValue(node.__index)
 						uvValue:addKeyList(node.__key_list)
+					end
+				else
+					if node.prefix_exp.__type=="var" and node.prefix_exp.__index then
+						node.__index = node.prefix_exp.__index
+						node.__key_list = node.prefix_exp.__key_list
 					end
 				end
 				travel(node.args)

@@ -8,9 +8,10 @@ local MixType = nil
 DecoType = class()
 
 function DecoType:__bor(vLeft, vRight)
-	local newType = MixType.new()
-	MixType:add(vLeft)
-	MixType:add(vRight)
+	local mixType = MixType.new()
+	mixType:add(vLeft)
+	mixType:add(vRight)
+	return mixType
 end
 
 function DecoType:decorator(node)
