@@ -45,15 +45,15 @@ end
 
 copyRef(ast, root)
 
-local posTravel = require  "posTravel"
+local posTravel = require  "travel/posTravel"
 posTravel(ast)
 
-local uvTravel = require  "uvTravel"
+local uvTravel = require  "travel/uvTravel"
 local uvTree = uvTravel(ast)
+
+local decoTravel = require  "travel/decoTravel"
+decoTravel(ast, uvTree)
+
 uvTree.firstTable:show(1)
-
-local decoTravel = require  "decoTravel"
-decoTravel(ast)
-
 print(astSeri(ast))
 --print(seri(ast))

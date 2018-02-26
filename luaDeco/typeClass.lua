@@ -1,4 +1,4 @@
-local class = require "luaDeco/oo"
+local class = require "util/oo"
 
 local DecoType = nil
 local SimpleType = nil
@@ -11,14 +11,6 @@ function DecoType:__bor(vLeft, vRight)
 	local newType = MixType.new()
 	MixType:add(vLeft)
 	MixType:add(vRight)
-end
-
-function DecoType:setIdentifier(vIdentifiter)
-	self.mIdentifier  = vIdentifiter
-end
-
-function DecoType:getIdentifier()
-	return self.mIdentifier
 end
 
 SimpleType = class(DecoType)
