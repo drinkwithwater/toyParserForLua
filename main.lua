@@ -1,4 +1,4 @@
-
+REQUIRE_PATH= "/home/cz/workspace/toyParserForLua/test/"
 if not arg[1] then
 	print("usage: lua main.lua xxx.lua")
 	return

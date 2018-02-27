@@ -5,9 +5,9 @@ return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
 	local logger = NodeLogger.new("staticRequireTravel")
-	local fileEnv = fileContext:getFileEnv()
+	local fileEnv = fileContext:getFileDecoEnv()
 
-	local function getContextFromExpr(expr)
+	local function getFileBodyFromExpr(expr)
 		if expr.__subtype~="prefix_exp" then
 			return nil
 		elseif expr.prefix_exp.__subtype~="function_call" then
@@ -19,8 +19,12 @@ return function(fileContext, globalContext)
 		if not fileBody then
 			return nil
 		else
-			return globalContext:getFileContext(fileBody)
+			local subFileContext = globalContext:getFileContext(fileBody)
+			if subFileContext then
+				return fileBody
+			end
 		end
+		return nil
 	end
 
 	local travelDict={
@@ -30,7 +34,6 @@ return function(fileContext, globalContext)
 				return
 			end,
 			["assign"]=function(node)
-				--[[
 				if #node.var_list~=1 or #node.expr_list~=1 then
 					rawtravel(node)
 					return
@@ -44,19 +47,36 @@ return function(fileContext, globalContext)
 				end
 
 				-- check expr
-				local requireFileContext = getContextFromExpr(node.expr_list[1])
-				if not requireFileContext then
+				local requireFile = getFileBodyFromExpr(node.expr_list[1])
+				if not requireFile then
 					rawtravel(node)
 					return
 				end
 
-				-- TODO parse return
-				local retNode = requireFileContext:getLastAstNode()
-				if retNode.expr_list then
-					local expr = retNode.expr_list
-				end]]
+				fileContext:getFileDecoEnv():addRequire(var.name.name, requireFile)
 			end,
 			["local"]=function(node)
+				if not node.name_list or not node.expr_list then
+					rawtravel(node)
+					return
+				end
+
+				if #node.name_list~=1 or #node.expr_list~=1 then
+					rawtravel(node)
+					return
+				end
+
+				-- check name
+				local nameNode=node.name_list[1]
+
+				-- check expr
+				local requireFileBody = getFileBodyFromExpr(node.expr_list[1])
+				if not requireFileBody then
+					rawtravel(node)
+					return
+				end
+
+				fileContext:getFileDecoEnv():addRequire(nameNode.name, requireFileBody)
 			end,
 		}
 	}

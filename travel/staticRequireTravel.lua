@@ -64,12 +64,13 @@ return function(fileContext, globalContext)
 					node.__require = fileBody
 				else
 					-- parse it !!!
-					local fileName = fileBody..".lua"
+					local fileName = REQUIRE_PATH..fileBody..".lua"
 					local parser = require "parser"
 					local subFileContext = parser.parse(fileName, globalContext)
 					if subFileContext then
 						globalContext:setFileContext(fileBody, subFileContext)
 						node.__require = fileBody
+
 					else
 						logger.error(node, fileBody.." require failed...")
 					end

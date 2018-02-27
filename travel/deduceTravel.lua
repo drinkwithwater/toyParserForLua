@@ -15,6 +15,9 @@ return function(fileContext, globalContext)
 				travel(node.expr)
 				local opStr = node.op.__subtype
 				local type0 = node.expr.__type_right
+				if not type0 then
+					return
+				end
 				if opStr=="not" then
 					node.__type_right = decoEnv.Boolean
 				elseif opStr=="-" then
@@ -36,6 +39,9 @@ return function(fileContext, globalContext)
 				local opStr = node.op.__subtype
 				local type1 = node.expr1.__type_right
 				local type2 = node.expr2.__type_right
+				if not type1 or not type2 then
+					return
+				end
 				if opStr=="or" or opStr=="and" then
 					node.__type_right = type1 | type2
 				elseif opStr=="+" or opStr=="-" or opStr=="*" or opStr=="/"
@@ -64,7 +70,7 @@ return function(fileContext, globalContext)
 			end,
 			["prefix_exp"]=function(node)
 				travel(node.prefix_exp)
-				node = node.prefix_exp.__type_right
+				node.__type_right = node.prefix_exp.__type_right
 			end,
 		},
 		var=function(node)
@@ -114,5 +120,13 @@ return function(fileContext, globalContext)
 
 	local travelFactory = require "travel/travelFactory"
 	travel, rawtravel = travelFactory.create(travelDict)
-	travel(fileContext:getAST())
+	local ast = fileContext:getAST()
+	travel(ast)
+	local retNode = ast[#ast]
+	if retNode and retNode.__subtype=="return" and #retNode.expr_list >= 1 then
+		local retType = retNode.expr_list[1].__type_right
+		if retType then
+			fileContext:getFileDecoEnv():setRetDeco(retType)
+		end
+	end
 end

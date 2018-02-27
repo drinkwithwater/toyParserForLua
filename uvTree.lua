@@ -2,6 +2,7 @@ local class = require "util/oo"
 local seri = require "seri"
 local cjson = require "cjson"
 
+--@Class
 local DecoSubDict = class()
 function DecoSubDict:ctor()
 	self[1] = nil
@@ -174,6 +175,7 @@ end
 -----------------------
 -- Tree ---------------
 -----------------------
+--@Class
 local UpValueTree = class()
 
 function UpValueTree:ctor(globalValue)

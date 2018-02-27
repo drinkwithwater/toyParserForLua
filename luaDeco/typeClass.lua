@@ -68,6 +68,20 @@ function FunctionType:getRetTuple()
 	return self.mRetTuple
 end
 
+ClassType = class(DecoType)
+function ClassType:ctor()
+	self.mDataDict={}
+	self.mFunctionDict={}
+end
+
+function ClassType:addData(vKey, vData)
+	self.mDataDict[vKey] = vData
+end
+
+function ClassType:addFunction(vKey, vFunction)
+	self.mFunctionDict[vKey] = vFunction
+end
+
 local function typeAssetWarning(leftType, rightType, info)
 	-- TODO use |
 	if leftType ~= rightType then

@@ -1,7 +1,6 @@
 local typeClass = require "luaDeco/typeClass"
 
 local SimpleType = typeClass.SimpleType
-local FunctionType = typeClass.FunctionType
 
 local Number = SimpleType.new("Number")
 local String = SimpleType.new("String")
@@ -10,13 +9,11 @@ local Boolean = SimpleType.new("Boolean")
 local Nil = SimpleType.new("Nil")
 local Dot3 = SimpleType.new("Dot3")
 
-local Function = FunctionType.new()
-
 local Interface = function(table)
 end
 
 local Call=function(...)
-	local nFunction = FunctionType.new()
+	local nFunction = typeClass.FunctionType.new()
 	nFunction:setArgTuple(...)
 	return {
 		Return = function(...)
@@ -24,6 +21,12 @@ local Call=function(...)
 			return nFunction
 		end
 	}
+end
+
+local Class = {}
+
+function Class:decorator(node, upValue)
+	return typeClass.ClassType.new()
 end
 
 
@@ -41,6 +44,7 @@ local dict = {
 	Nil=Nil,
 	Call=Call,
 	Dot3=Dot3,
+	Class=Class,
 }
 
 return dict

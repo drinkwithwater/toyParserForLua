@@ -27,6 +27,10 @@ function FileEnv:createGlobal(requireFileEnvDict)
 		globalDict[name] = v
 	end
 
+	for name, v in pairs(self.nameToDeco) do
+		globalDict[name] = v
+	end
+
 	for name, fileBody in pairs(self.nameToRequireFile) do
 		local requireFileEnv = requireFileEnvDict[fileBody]
 		globalDict[name] = requireFileEnv:createForName()
@@ -35,7 +39,7 @@ function FileEnv:createGlobal(requireFileEnvDict)
 end
 
 function FileEnv:createForName()
-	return RenameDeco.new(self)
+	return RenameDeco(self)
 end
 
 -- setter & getter
