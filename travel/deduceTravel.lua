@@ -1,12 +1,13 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
-local decoEnv = require "luaDeco/env"
 
 return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
 	local logger = NodeLogger.new("deduceTravel")
 	local uvTree = fileContext:getUVTree()
+
+	local decoEnv = fileContext:getFileDecoEnv():createGlobal(globalContext:getFileDecoEnvDict())
 
 	local travelDict={
 		expr={

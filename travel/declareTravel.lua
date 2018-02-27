@@ -5,6 +5,7 @@ return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
 	local logger = NodeLogger.new("staticRequireTravel")
+	local fileEnv = fileContext:getFileEnv()
 
 	local function getContextFromExpr(expr)
 		if expr.__subtype~="prefix_exp" then
@@ -29,6 +30,7 @@ return function(fileContext, globalContext)
 				return
 			end,
 			["assign"]=function(node)
+				--[[
 				if #node.var_list~=1 or #node.expr_list~=1 then
 					rawtravel(node)
 					return
@@ -52,7 +54,7 @@ return function(fileContext, globalContext)
 				local retNode = requireFileContext:getLastAstNode()
 				if retNode.expr_list then
 					local expr = retNode.expr_list
-				end
+				end]]
 			end,
 			["local"]=function(node)
 			end,

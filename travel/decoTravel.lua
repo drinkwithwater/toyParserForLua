@@ -1,15 +1,14 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
 
--- TODO set this as local
-local decoEnv = require "luaDeco/env"
-
 return function(fileContext, globalContext)
 	local ast = fileContext:getAST()
 	local uvTree = fileContext:getUVTree()
 	local travel = nil
 	local rawtravel = nil
 	local logger = NodeLogger.new("decoTravel")
+
+	local decoEnv = fileContext:getFileDecoEnv():createGlobal(globalContext:getFileDecoEnvDict())
 
 	local function parseDecoBuffer(buffer)
 		local first = buffer:find("@")

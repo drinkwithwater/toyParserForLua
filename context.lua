@@ -1,5 +1,6 @@
 local UVTree = require "uvTree"
 local class = require "util/oo"
+local FileDecoEnv = require "luaDeco/fileEnv"
 
 local FileContext = class()
 
@@ -7,6 +8,7 @@ function FileContext:ctor(ast)
 	self.uvTree = nil
 	self.ast = ast
 	self.declareDict = {}
+	self.fileDecoEnv = FileDecoEnv.new()
 end
 
 function FileContext:getUVTree()
@@ -37,22 +39,32 @@ function FileContext:getLastAstNode()
 	return self.ast[#self.ast]
 end
 
+function FileContext:getFileDecoEnv()
+	return self.fileDecoEnv
+end
+
 local GlobalContext = class()
 function GlobalContext:ctor()
 	self.globalValue = UVTree.createGlobalValue()
 	self.fileContextDict = {}
+	self.fileDecoEnvDict = {}
 end
 
 function GlobalContext:getGlobalValue()
 	return self.globalValue
 end
 
+function GlobalContext:getFileDecoEnvDict()
+	return self.fileDecoEnvDict
+end
+
 function GlobalContext:getFileContext(fileBody)
 	return self.fileContextDict[fileBody]
 end
 
-function GlobalContext:setFileContext(fileBody, context)
-	self.fileContextDict[fileBody] = context
+function GlobalContext:setFileContext(fileBody, fileContext)
+	self.fileContextDict[fileBody] = fileContext
+	self.fileDecoEnvDict[fileBody] = fileContext:getFileDecoEnv()
 end
 
 return {
