@@ -1,3 +1,4 @@
+local class = require "util/oo"
 local typeClass = require "luaDeco/typeClass"
 
 local SimpleType = typeClass.SimpleType
@@ -23,7 +24,7 @@ local Call=function(...)
 	}
 end
 
-local Class = {}
+local Class = class(typeClass.DecoClass)
 
 function Class:decorator(node, upValue)
 	return typeClass.ClassType.new()

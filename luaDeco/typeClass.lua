@@ -68,10 +68,16 @@ function FunctionType:getRetTuple()
 	return self.mRetTuple
 end
 
+local ClassObj = class()
+function ClassObj:ctor()
+	self.dosth = "test"
+end
+
 ClassType = class(DecoType)
 function ClassType:ctor()
 	self.mDataDict={}
 	self.mFunctionDict={}
+	self.mClassObj=ClassObj.new()
 end
 
 function ClassType:addData(vKey, vData)
@@ -80,6 +86,10 @@ end
 
 function ClassType:addFunction(vKey, vFunction)
 	self.mFunctionDict[vKey] = vFunction
+end
+
+function ClassType:decorator()
+	return self.mClassObj
 end
 
 local function typeAssetWarning(leftType, rightType, info)
