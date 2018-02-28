@@ -1,15 +1,15 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
 
-return function(ast, uvTree)
+return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
-	local logger = NodeLogger.new("autoDecoTravel")
+	local logger = NodeLogger.new("check")
 
 	local travelDict={
 	}
 
 	local travelFactory = require "travel/travelFactory"
 	travel, rawtravel = travelFactory.create(travelDict)
-	travel(ast)
+	travel(fileContext:getAST())
 end

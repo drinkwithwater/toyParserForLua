@@ -7,7 +7,7 @@ local AstNode = require "astNode"
 
 return function(fileContext, globalContext)
 	local uvTree = UVTree.new(globalContext:getGlobalValue())
-	local log = NodeLogger.new("uvTravel")
+	local log = NodeLogger.new("uv")
 
 	local travel = nil
 	local rawtravel = nil

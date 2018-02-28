@@ -4,7 +4,7 @@ local NodeLogger = require "nodeLogger"
 return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
-	local logger = NodeLogger.new("staticRequireTravel")
+	local logger = NodeLogger.new("declare")
 	local fileEnv = fileContext:getFileDecoEnv()
 
 	local function getFileBodyFromExpr(expr)
