@@ -126,7 +126,7 @@ return function(fileContext, globalContext)
 	if retNode and retNode.__subtype=="return" and #retNode.expr_list >= 1 then
 		local retType = retNode.expr_list[1].__type_right
 		if retType then
-			fileContext:getFileDecoEnv():setRetDeco(retType)
+			fileContext:getFileDecoEnv():setRetType(retType)
 		end
 	end
 end

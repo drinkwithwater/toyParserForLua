@@ -1,34 +1,14 @@
-local class = require "util/oo"
+local dict = {}
 
-local decoClassList = {}
-
-local Decorator = class()
-
-function Decorator:ctor(vClassIndex)
-	self.mClassIndex = vClassIndex
+local simpleDeco = require "luaDeco/decorator/simpleDeco"
+for k,v in pairs(simpleDeco) do
+	dict[k] = v
 end
 
-function Decorator:getClassIndex()
-	return self.mClassIndex
-end
+local classDeco = require "luaDeco/decorator/classDeco"
+dict.Class = classDeco.Class
 
-function Decorator:decorator(node)
-	return decoClassList[self.mClassIndex]
-end
+local functionDeco = require "luaDeco/decorator/functionDeco"
+dict.Call = functionDeco.Call
 
-function Decorator:addSubNode(vName, vDecorator)
-	self[vName] = vDecorator
-end
-
-function Decorator:__bor(vLeftDeco, vRightDeco)
-	local nLeftClass = decoClassList[vLeftDeco:getClassIndex()]
-	local nRightClass = decoClassList[vRightDeco:getClassIndex()]
-
-	local mixType = MixType.new()
-	mixType:add(nLeftClass)
-	mixType:add(nRightClass)
-
-	local newIndex = #decoClassList + 1
-	decoClassList[newIndex] = mixType
-	return Decorator.new(newIndex)
-end
+return dict

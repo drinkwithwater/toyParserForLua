@@ -1,29 +1,19 @@
+local seri = require "seri"
 local class = require "util/oo"
-local baseClass = require "luaDeco/baseClass"
-
-local function RenameDeco(fileEnv)
-	local obj = setmetatable({},{
-		__index=function(t,name)
-			return fileEnv:getNameDeco(name)
-		end
-	})
-	function obj:decorator(...)
-		return fileEnv:getRetDeco():decorator(...)
-	end
-	return obj
-end
+local decorator = require "luaDeco/decorator"
+local Decorator = require "luaDeco/decorator/Decorator"
 
 local FileEnv = class()
 
 function FileEnv:ctor()
 	self.nameToDeco = {}
 	self.nameToRequireFile = {}
-	self.retDeco = nil
+	self.retType = nil
 end
 
 function FileEnv:createGlobal(requireFileEnvDict)
 	local globalDict = {}
-	for name, v in pairs(baseClass) do
+	for name, v in pairs(decorator) do
 		globalDict[name] = v
 	end
 
@@ -39,16 +29,26 @@ function FileEnv:createGlobal(requireFileEnvDict)
 end
 
 function FileEnv:createForName()
-	return RenameDeco(self)
+	local deco = nil
+	if self.retType and self.retType.createDecorator then
+		deco = self.retType:createDecorator()
+	else
+		deco = Decorator.new()
+	end
+
+	for k,v in pairs(self.nameToDeco) do
+		deco[k] = v
+	end
+	return deco
 end
 
 -- setter & getter
-function FileEnv:getRetDeco()
-	return self.retDeco
+function FileEnv:getRetType()
+	return self.retType
 end
 
-function FileEnv:setRetDeco(deco)
-	self.retDeco = deco
+function FileEnv:setRetType(vType)
+	self.retType = vType
 end
 
 function FileEnv:getNameDeco(name)
