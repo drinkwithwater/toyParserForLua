@@ -1,8 +1,13 @@
 local class = require "util/oo"
 
 local decoTypeList = require "luaDeco/decoType/decoTypeList"
+local MixType = require "luaDeco/decoType/MixType"
 
 local Decorator = class()
+
+function Decorator:setTypeIndex(vTypeIndex)
+	self.mTypeIndex = vTypeIndex
+end
 
 function Decorator:getTypeIndex()
 	return self.mTypeIndex
@@ -16,17 +21,24 @@ function Decorator:addSubNode(vName, vDecorator)
 	self[vName] = vDecorator
 end
 
-function Decorator:__bor(vLeftDeco, vRightDeco)
-	local nLeftType = decoTypeList[vLeftDeco:getTypeIndex()]
+function Decorator:__bor(vRightDeco)
+	local nLeftType = decoTypeList[self:getTypeIndex()]
 	local nRightType = decoTypeList[vRightDeco:getTypeIndex()]
 
-	local mixType = MixType.new()
-	mixType:add(nLeftType)
-	mixType:add(nRightType)
+	if MixType.isClass(nLeftType) then
+		nLeftType:add(nRightType)
+		return self
+	else
+		local mixType = MixType.new()
+		mixType:add(nLeftType)
+		mixType:add(nRightType)
+		local newIndex = #decoTypeList + 1
+		decoTypeList[newIndex] = mixType
+		local deco = Decorator.new()
+		deco:setTypeIndex(newIndex)
+		return deco
+	end
 
-	local newIndex = #decoTypeList + 1
-	decoTypeList[newIndex] = mixType
-	return Decorator.new(newIndex)
 end
 
 return Decorator
