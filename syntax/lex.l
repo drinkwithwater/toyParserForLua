@@ -22,7 +22,7 @@
 
 %}
 
-blanks [ \t\v\h]+
+blanks [ \t\v\a\f\r\z]+
 
 
 %%
