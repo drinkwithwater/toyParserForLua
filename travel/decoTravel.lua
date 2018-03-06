@@ -11,9 +11,27 @@ return function(fileContext, globalContext)
 	local decoEnv = fileContext:getFileDecoEnv():createGlobal(globalContext:getFileDecoEnvDict())
 
 	local function parseDecoBuffer(buffer)
-		local first = buffer:find("@")
+		-- parse from buf
+		local first = buffer:find("@") + 1
 		local last = buffer:find(";") or #buffer+1
-		local content = buffer:sub(first+1,last-1)
+		local content = buffer:sub(first,last-1)
+		while(first < last) do
+			local cur = buffer:sub(first, first)
+			if cur == " " then
+				first = first + 1
+			else
+				if cur == "." then
+					content = "Dot"..buffer:sub(first+1,last-1)
+				elseif cur == ":" then
+					content = "Colon"..buffer:sub(first+1,last-1)
+				else
+					content = buffer:sub(first,last-1)
+				end
+				print(content)
+				break
+			end
+		end
+		-- load
 		local block = load("return "..content, "deco", "t", decoEnv)
 		local ok, decoClass = pcall(block)
 		if ok then
@@ -37,19 +55,19 @@ return function(fileContext, globalContext)
 		decoNode.__type_left = decoClass
 		return true
 	end
-	local function setArgvDeco(argvNode, funcDecoClass)
-		local argTypeTuple = funcDecoClass:getArgTuple()
+	local function setArgvDeco(argvNode, funcDeco)
+		local argDecoTuple = funcDeco:getArgDecoTuple()
 		if argvNode.__subtype=="list" then
 			local nameList = argvNode.name_list
-			if #argTypeTuple ~= #nameList then
+			if #argDecoTuple ~= #nameList then
 				logger.error(node, "argv size exception")
 				return false
 			end
-			for k, argType in pairs(argTypeTuple) do
-				setNodeDeco(nameList[k], argType)
+			for k, argDeco in pairs(argDecoTuple) do
+				setNodeDeco(nameList[k], argDeco:decorator())
 			end
 		elseif argvNode.__subtype=="()" then
-			if #argTypeTuple~=0 then
+			if #argDecoTuple~=0 then
 				logger.error(node, "argv size exception")
 				return false
 			end

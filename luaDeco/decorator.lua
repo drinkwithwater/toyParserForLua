@@ -9,6 +9,8 @@ local classDeco = require "luaDeco/decorator/classDeco"
 dict.Class = classDeco.Class
 
 local functionDeco = require "luaDeco/decorator/functionDeco"
-dict.Call = functionDeco.Call
+for k,v in pairs(functionDeco) do
+	dict[k] = v
+end
 
 return dict

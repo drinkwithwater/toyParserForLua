@@ -4,8 +4,8 @@ local DecoType = require "luaDeco/decoType/DecoType"
 local FunctionType = class(DecoType)
 
 function FunctionType:ctor()
-	self.mArgTuple={}
-	self.mRetTuple={}
+	self.mArgTuple=nil
+	self.mRetTuple=nil
 end
 
 function FunctionType:setArgTuple(vList)
