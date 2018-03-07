@@ -1,0 +1,87 @@
+1. mail auto removed when reach 99
+
+2. test 3 player in team
+
+
+---{ room
+
+8. snaxRoom 开始时，如果这时候player突然掉线了，而player还没绑定snaxRoom，的情
+况 不仅无法调用disconnect，而且向旧有的agent发消息会error
+
+9. stop & close room 调用过程优化
+}
+
+
+---big todo
+
+7. snaxRoom cache
+
+12. mysql sqlinsert for Token and other str
+
+14. loadDetail use dict instead of list?
+
+15. match algorithm
+
+17. robot ai
+
+18. close room .... map data... sync ...
+
+19. deal with more than once login in one agent?
+--- little
+
+kcp remove fd not call watchdog if not connect
+kcp add ip addr map
+
+check if kcp.waitwnd is to big
+
+
+--- trouble
+
+account login by two client:
+	playerQuit will cause data sync problem...
+
+20. 干掉匹配成功后短暂的锁住匹配的方式，宁可让玩家重复匹配，也要避免出了某些错误之后玩家无法再入匹配的情况
+
+21. battleStart从snaxRoomManager到remoteRoomManager改为rpc调用方式,要不要这么
+干??????
+
+22. login battle forwarding for gateCluster
+
+23. battle end cancel forwarding for gateCluster
+
+24. headportrait... reconstruct
+
+25. gm api
+
+26. move setready to remoteRoomManager
+
+27. seperate token index ?
+
+28. some mechanism of auto incr id in distribute system
+
+29. TODO, login,_lock__,latelogin,         ,logout,
+
+30. remoteRoomManager pack battleStart msg
+
+31. gate kcp socket
+
+34. 修改friendBattle的匹配地图，config表
+
+36. mapdata的存储，存放到另一张表
+
+37. mail 有换行会失败
+
+
+10000000000000000000000. 重构思路
+1. 为了实现热更新，需要将所有变量和方法添加到_G能索引到的地方
+
+
+
+2018年
+2. 前端 kcp 卡死，corner case
+
+3. mail 换行fix
+
+4. agent sleep loop 没有严格考虑其一致性
+
+5. gateCluster 的udpgate 换成kcpHeadBody一套
