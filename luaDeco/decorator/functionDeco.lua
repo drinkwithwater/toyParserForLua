@@ -16,13 +16,14 @@ function FunctionDeco:getArgDecoTuple()
 	return self.mArgDecoTuple
 end
 
-local getTypeFromDecoList = function(...)
+local getTuple = function(...)
 	local nDecoTuple = table.pack(...)
+	nDecoTuple.n = nil
 	local nTuple = {}
 	for k,v in ipairs(nDecoTuple) do
-		nTuple[#nTuple + 1] = v:getTypeIndex()
+		nTuple[#nTuple + 1] = v:decorator():getTypeIndex()
 	end
-	return nTuple
+	return nDecoTuple, nTuple
 end
 
 local Call=function(...)
@@ -30,16 +31,14 @@ local Call=function(...)
 	local nFuncDeco = FunctionDeco.new()
 	nFuncDeco:setTypeIndex(nFunction:getTypeIndex())
 
-	local nTuple = getTypeFromDecoList(...)
-	nTuple.n = nil
-	nFuncDeco:setArgDecoTuple(nTuple)
-	nFunction:setArgTuple(nArgTuple)
+	local nDecoTuple, nTuple = getTuple(...)
+	nFuncDeco:setArgDecoTuple(nDecoTuple)
+	nFunction:setArgTuple(nTuple)
 
 
 	--[[nFuncDeco.Return=function(...)
-		local nTuple = getTypeFromDecoList(...)
-		nTuple.n = nil
-		nFuncDeco:setRetDecoTuple(nTuple)
+		local nDecoTuple, nTuple = getTuple(...)
+		nFuncDeco:setRetDecoTuple(nDecoTuple)
 		nFunction:setRetTuple(nTuple)
 
 		return nFuncDeco

@@ -51,7 +51,7 @@ return function(fileContext, globalContext)
 			logger.error(decoNode, "node's uvValue not found when deco")
 			return false
 		end
-		uvValue:setKeyListDeco(decoNode.__key_list, decoClass:decorator(decoNode))
+		uvValue:setKeyListDeco(decoNode.__key_list, decoClass)
 		decoNode.__type_left = decoClass
 		return true
 	end

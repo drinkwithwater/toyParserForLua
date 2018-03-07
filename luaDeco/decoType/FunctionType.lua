@@ -1,3 +1,5 @@
+require  "util/tableExpand"
+local decoTypeList = require "luaDeco/decoType/decoTypeList"
 local class = require "util/oo"
 local DecoType = require "luaDeco/decoType/DecoType"
 
@@ -24,5 +26,17 @@ function FunctionType:getRetTuple()
 	return self.mRetTuple
 end
 
+function FunctionType:toString()
+	local buf = ""
+	if self.mArgTuple then
+		local nList = table.map(self.mArgTuple, function(v, k)
+			return decoTypeList[v]:toString()
+		end)
+		buf = buf..string.format("Call(%s)", table.concat(nList, ","))
+	else
+		buf = "Call()"
+	end
+	return buf
+end
 
 return FunctionType

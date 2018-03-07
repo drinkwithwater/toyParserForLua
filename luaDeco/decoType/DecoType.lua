@@ -13,6 +13,10 @@ function DecoType:getTypeIndex()
 	return self.mTypeIndex
 end
 
+function DecoType:toString()
+	return "not_implement"
+end
+
 local function typeAssetWarning(leftType, rightType, info)
 	-- TODO use |
 	if leftType ~= rightType then

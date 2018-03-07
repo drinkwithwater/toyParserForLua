@@ -23,11 +23,19 @@ local function class(super)
 		return obj
 	end
 	class_type.bindFunction=function(obj)
-		setmetatable(obj, class_type)
+		return setmetatable(obj, class_type)
 	end
-	class_type.isClass=function(v)
-		if type(v) == "table" then
-			return class_type == getmetatable(v)
+	class_type.isClass=function(obj)
+		if type(obj) == "table" then
+			local obj_type = getmetatable(obj)
+			while(obj_type) do
+				if obj_type == class_type then
+					return true
+				else
+					obj_type = obj_type.super
+				end
+			end
+			return false
 		else
 			return false
 		end

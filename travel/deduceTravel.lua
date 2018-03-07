@@ -101,19 +101,19 @@ return function(fileContext, globalContext)
 		},
 		value={
 			["string"]=function(node)
-				node.__type_right = decoEnv.String
+				node.__type_right = decoEnv.String:decorator()
 			end,
 			["number"]=function(node)
-				node.__type_right = decoEnv.Number
+				node.__type_right = decoEnv.Number:decorator()
 			end,
 			["true"]=function(node)
-				node.__type_right = decoEnv.Boolean
+				node.__type_right = decoEnv.Boolean:decorator()
 			end,
 			["false"]=function(node)
-				node.__type_right = decoEnv.Boolean
+				node.__type_right = decoEnv.Boolean:decorator()
 			end,
 			["nil"]=function(node)
-				node.__type_right = decoEnv.Nil
+				node.__type_right = decoEnv.Nil:decorator()
 			end,
 		},
 	}
