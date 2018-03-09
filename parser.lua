@@ -70,6 +70,9 @@ local function parse(fileName, globalContext)
 	local deduceTravel = require  "travel/deduceTravel"
 	deduceTravel(fileContext, globalContext)
 
+	local checkFunctionTravel = require  "travel/checkFunctionTravel"
+	checkFunctionTravel(fileContext, globalContext)
+
 	fileContext:getUVTree().firstTable:show(1)
 	log.info(astSeri(fileContext:getAST()))
 	log.info(astSeri(fileContext:getFileDecoEnv()))

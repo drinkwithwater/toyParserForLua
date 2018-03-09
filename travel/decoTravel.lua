@@ -27,7 +27,6 @@ return function(fileContext, globalContext)
 				else
 					content = buffer:sub(first,last-1)
 				end
-				print(content)
 				break
 			end
 		end
@@ -51,8 +50,8 @@ return function(fileContext, globalContext)
 			logger.error(decoNode, "node's uvValue not found when deco")
 			return false
 		end
-		uvValue:setKeyListDeco(decoNode.__key_list, decoClass)
-		decoNode.__type_left = decoClass
+		uvValue:setKeyListDeco(decoNode.__key_list, decoClass:decorator())
+		decoNode.__type_left = decoClass:decorator()
 		return true
 	end
 	local function setArgvDeco(argvNode, funcDeco)
@@ -60,15 +59,15 @@ return function(fileContext, globalContext)
 		if argvNode.__subtype=="list" then
 			local nameList = argvNode.name_list
 			if #argDecoTuple ~= #nameList then
-				logger.error(node, "argv size exception")
+				logger.error(argvNode, "argv size exception")
 				return false
 			end
 			for k, argDeco in pairs(argDecoTuple) do
-				setNodeDeco(nameList[k], argDeco:decorator())
+				setNodeDeco(nameList[k], argDeco)
 			end
 		elseif argvNode.__subtype=="()" then
 			if #argDecoTuple~=0 then
-				logger.error(node, "argv size exception")
+				logger.error(argvNode, "argv size exception")
 				return false
 			end
 		else

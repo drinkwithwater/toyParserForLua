@@ -20,6 +20,9 @@ function NodeLogger:ctor(name)
 	self.error=function(node, ...)
 		print("[ERROR]"..prefix..nodeInfo(node), ...)
 	end
+	self.result=function(node, ...)
+		print("[RESULT]"..prefix..nodeInfo(node), ...)
+	end
 end
 
 return NodeLogger
