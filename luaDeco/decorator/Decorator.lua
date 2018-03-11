@@ -7,13 +7,14 @@ local Decorator = class()
 
 function Decorator:setTypeIndex(vTypeIndex)
 	self.mTypeIndex = vTypeIndex
+	return self
 end
 
 function Decorator:getTypeIndex()
 	return self.mTypeIndex
 end
 
-function Decorator:decorator(node)
+function Decorator:decorator()
 	return decoTypeList[self.mTypeIndex]
 end
 

@@ -1,4 +1,6 @@
 local class = require "util/oo"
+local env = require "luaDeco/decoType/env"
+
 local DecoType = require "luaDeco/decoType/DecoType"
 local ClassType = require "luaDeco/decoType/ClassType"
 
@@ -23,4 +25,5 @@ function ClassProtoType:createDecorator()
 	return classDeco.ClassDeco.new(self.mClassType:getTypeIndex())
 end
 
+env.Class = ClassProtoType
 return ClassProtoType

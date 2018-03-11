@@ -1,27 +1,41 @@
+require "util/tableExpand"
 local class = require "util/oo"
-local Decorator = require "luaDeco/decorator/Decorator"
+
 
 local BaseType = require "luaDeco/decoType/BaseType"
+local AnyType = require "luaDeco/decoType/AnyType"
+local TableType = require "luaDeco/decoType/TableType"
 
-local SimpleDeco = class(Decorator)
+local Decorator = require "luaDeco/decorator/Decorator"
 
-function SimpleDeco:ctor(str)
-	local baseType = BaseType.new(str)
-	self.mTypeIndex = baseType:getTypeIndex()
-end
+local decoTypeEnv = require "luaDeco/decoType/env"
 
-local Number = SimpleDeco.new("Number")
-local String = SimpleDeco.new("String")
-local Table = SimpleDeco.new("Table")
-local Boolean = SimpleDeco.new("Boolean")
-local Nil = SimpleDeco.new("Nil")
-local Dot3 = SimpleDeco.new("Dot3")
+decoTypeEnv.Number = BaseType.new("Number")
+decoTypeEnv.String = BaseType.new("String")
+decoTypeEnv.Boolean = BaseType.new("Boolean")
+decoTypeEnv.Nil = BaseType.new("Nil")
 
-return {
-	Number = Number,
-	String = String,
-	Table = Table,
-	Nil = Nil,
-	Boolean = Boolean,
+decoTypeEnv.Any = AnyType.new()
+
+decoTypeEnv.Table = TableType.new()
+
+local temp = {
+	Number = 1,
+	String = 1,
+	Boolean = 1,
+	Nil = 1,
+	Any = 1,
 }
+
+return table.map(temp, function(v,k)
+	local nTypeIndex = decoTypeEnv[k]:getTypeIndex()
+
+	local deco = Decorator.new()
+	deco:setTypeIndex(nTypeIndex)
+
+	return deco
+end)
+
+-- TODO
+-- Table, Dot3
 

@@ -1,7 +1,8 @@
 local class = require "util/oo"
-local DecoType = require "luaDeco/decoType/DecoType"
 
-local ClassType = class(DecoType)
+local TableType = require "luaDeco/decoType/TableType"
+
+local ClassType = class(TableType)
 
 function ClassType:ctor()
 	self.mDataDict={}

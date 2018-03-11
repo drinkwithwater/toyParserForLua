@@ -55,6 +55,17 @@ function FileEnv:getNameDeco(name)
 	return self.nameToDeco[name]
 end
 
+function FileEnv:getDeclareEnv()
+	return setmetatable({}, {
+		__index=function(t,k)
+			return decorator[k] or self.nameToDeco[k]
+		end,
+		__newindex=function(t,k,v)
+			self.nameToDeco[k] = v
+		end
+	})
+end
+
 function FileEnv:setNameDeco(name, deco)
 	self.nameToDeco[name] = deco
 end

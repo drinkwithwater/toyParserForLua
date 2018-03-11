@@ -1,5 +1,7 @@
 require "util/tableExpand"
 local class = require "util/oo"
+local env = require "luaDeco/decoType/env"
+
 local DecoType = require "luaDeco/decoType/DecoType"
 local decoTypeList = require "luaDeco/decoType/decoTypeList"
 
@@ -10,7 +12,7 @@ function MixType:ctor()
 end
 
 function MixType:add(vItem)
-	if MixType.isClass(vItem) then
+	if MixType.checkClass(vItem) then
 		local nList = vItem:getBorList()
 		for k,v in pairs(nList) do
 			self.mBorList[#self.mBorList + 1] = v:getTypeIndex()
@@ -18,6 +20,18 @@ function MixType:add(vItem)
 	else
 		self.mBorList[#self.mBorList + 1] = vItem:getTypeIndex()
 	end
+end
+
+function MixType:contain(vTypeObj)
+	if MixType.checkClass(vTypeObj) then
+		error("TODO...MixType contain MixType...")
+	end
+	for k, nTypeObj in pairs(self.mBorList) do
+		if nTypeObj:contain(vTypeObj) then
+			return true
+		end
+	end
+	return false
 end
 
 function MixType:getBorList()
@@ -31,4 +45,5 @@ function MixType:toString()
 	return table.concat(nList, "|")
 end
 
+env.MixType = MixType
 return MixType

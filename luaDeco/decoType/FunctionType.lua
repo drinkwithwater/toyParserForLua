@@ -1,6 +1,9 @@
 require  "util/tableExpand"
-local decoTypeList = require "luaDeco/decoType/decoTypeList"
 local class = require "util/oo"
+local env = require "luaDeco/decoType/env"
+
+local decoTypeList = require "luaDeco/decoType/decoTypeList"
+
 local DecoType = require "luaDeco/decoType/DecoType"
 
 local FunctionType = class(DecoType)
@@ -39,4 +42,5 @@ function FunctionType:toString()
 	return buf
 end
 
+env.FunctionType = FunctionType
 return FunctionType
