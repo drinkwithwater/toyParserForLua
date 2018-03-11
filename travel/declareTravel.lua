@@ -30,8 +30,16 @@ return function(fileContext, globalContext)
 	local travelDict={
 		stmt={
 			["deco_declare"]=function(node)
-				-- TODO
-				return
+				-- parse from buf
+				local first = node.buffer:find("@") + 1
+				local last = #node.buffer - 2
+				local content = node.buffer:sub(first, last)
+				-- load
+				local block = load(content, "declare", "t", fileEnv:getDeclareEnv())
+				local ok, result = pcall(block)
+				if not ok then
+					logger.error(node, "declare failed...", result)
+				end
 			end,
 			["assign"]=function(node)
 				if #node.var_list~=1 or #node.expr_list~=1 then

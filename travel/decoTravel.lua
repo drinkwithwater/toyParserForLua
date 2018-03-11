@@ -15,21 +15,6 @@ return function(fileContext, globalContext)
 		local first = buffer:find("@") + 1
 		local last = buffer:find(";") or #buffer+1
 		local content = buffer:sub(first,last-1)
-		while(first < last) do
-			local cur = buffer:sub(first, first)
-			if cur == " " then
-				first = first + 1
-			else
-				if cur == "." then
-					content = "Dot"..buffer:sub(first+1,last-1)
-				elseif cur == ":" then
-					content = "Colon"..buffer:sub(first+1,last-1)
-				else
-					content = buffer:sub(first,last-1)
-				end
-				break
-			end
-		end
 		-- load
 		local block = load("return "..content, "deco", "t", decoEnv)
 		local ok, decoClass = pcall(block)

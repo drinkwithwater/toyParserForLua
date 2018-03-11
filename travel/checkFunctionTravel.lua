@@ -1,6 +1,7 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
 local FunctionType = require "luaDeco/decoType/FunctionType"
+local indexDecoType = require "luaDeco/decoType/decoTypeList"
 
 return function(fileContext, globalContext)
 	local travel = nil
@@ -38,13 +39,60 @@ return function(fileContext, globalContext)
 
 				-- TODO check arguments
 
+				local argsNode = node.args
 				local argTuple = decoType:getArgTuple()
-				if argTuple then
-					for k, argDecoType in pairs(argTuple) do
-						-- TODO check arguments
-					end
+				if not argTuple then
+					log.warning(node, "simple function...")
+					return
 				end
-				log.result(node, "function check success")
+
+				if argsNode.__subtype=="string" then
+					if #argTuple ~= 1 then
+						log.error(node, "function check failed 1")
+					else
+						local argType = argTuple[1]
+						if argType:toString() ~= "String" then
+							log.error(node, "function check failed 2")
+						end
+					end
+				elseif argsNode.__subtype=="table" then
+					if #argTuple ~= 1 then
+						log.error(node, "function check failed 3")
+					else
+						local argType = indexDecoType[argTuple[1]]
+						if argType:toString() ~= "String" then
+							log.error(node, "function check failed 4")
+						end
+					end
+				elseif argsNode.__subtype=="()" then
+					if #argTuple ~= 0 then
+						log.error(node, "function check failed 5")
+					end
+				elseif argsNode.__subtype=="(expr_list)" then
+					if #argTuple ~= #argsNode.expr_list then
+						log.error(node, "function check failed 6")
+					else
+						for k, argTypeIndex in ipairs(argTuple) do
+							local argType = indexDecoType[argTypeIndex]
+							local exprNode = argsNode.expr_list[k]
+							local rightType = exprNode.__type_right
+							if exprNode.__index then
+								rightType = uvTree:indexValue(exprNode.__index):getKeyListDeco(exprNode.__key_list)
+							end
+							if rightType then
+								if not (argType>=rightType) then
+									log.error(node, "function check failed 7")
+								end
+							else
+								log.error(node,"function check failed 8")
+							end
+						end
+					end
+				else
+				end
+				if argTuple then
+				end
+				log.result(node, "function check end")
 			end
 		}
 	}
