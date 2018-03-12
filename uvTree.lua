@@ -1,48 +1,9 @@
 local class = require "util/oo"
 local seri = require "seri"
+local uvSubSeri= require "uvSubSeri"
 local cjson = require "cjson"
 
---@Class
-local DecoSubDict = class()
-function DecoSubDict:ctor()
-	self[1] = nil
-	self[2] = {}
-end
-
---@Call(Table, Table).Return()
-function DecoSubDict:setKeyListDeco(keyList, decoClass)
-	if not keyList then
-		self[1] = decoClass
-	else
-		local pointer = self
-		for _, aKey in ipairs(keyList) do
-			local nextPointer = pointer[2][aKey]
-			if not nextPointer then
-				nextPointer = {nil, {}}
-				pointer[2][aKey] = nextPointer
-			end
-			pointer = nextPointer
-		end
-		pointer[1] = decoClass
-	end
-end
-
---@Call(Table).Return()
-function DecoSubDict:getKeyListDeco(keyList)
-	if not keyList then
-		return self[1]
-	else
-		local pointer = self
-		for _, aKey in ipairs(keyList) do
-			local nextPointer = pointer[2][aKey]
-			if not nextPointer then
-				return nil
-			end
-			pointer = nextPointer
-		end
-		return pointer[1]
-	end
-end
+local DecoSubDict = require "util/keyListDict"
 
 ----------------------
 -- UpValue -----------
@@ -55,6 +16,7 @@ function UpValue:ctor(id, index)
 	self.index = index					--@Number ;
 	self.subDict = {}					--@Table ;
 	self.decoSubDict = DecoSubDict.new()
+	self.guessDecoSubDict = DecoSubDict.new()
 	if type(id) == "table" then
 		if id.__type~="name" then
 			error("parse error ... upvalue not name when uvTree:putid")
@@ -93,11 +55,11 @@ function UpValue:addKeyList(keyList)
 end
 
 function UpValue:setKeyListDeco(keyList, decoClass)
-	self.decoSubDict:setKeyListDeco(keyList, decoClass)
+	self.decoSubDict:setKeyListValue(keyList, decoClass)
 end
 
 function UpValue:getKeyListDeco(keyList, decoClass)
-	return self.decoSubDict:getKeyListDeco(keyList)
+	return self.decoSubDict:getKeyListValue(keyList)
 end
 
 function UpValue:getSubDict()
@@ -164,7 +126,7 @@ end
 function UpValueTable:show(i)
 	for k,v in pairs(self.subList) do
 		if UpValue.isClass(v) then
-			print(string.rep("  ",i)..v:getName().." "..seri(v:getDecoSubDict(), i))
+			print(string.rep("  ",i)..v:getName().."="..uvSubSeri(v:getDecoSubDict(), i))
 			-- print(string.rep("  ",i)..v:getName().." "..cjson.encode(v:getDecoSubDict()))
 			-- print(string.rep("  ",i)..v:getName().." "..seri(v:getSubDict(), -1))
 		else
@@ -220,4 +182,5 @@ function UpValueTree:indexValue(index)
 	return self.uvIndexList[index]
 end
 
+UpValueTree.DecoSubDict = DecoSubDict
 return UpValueTree
