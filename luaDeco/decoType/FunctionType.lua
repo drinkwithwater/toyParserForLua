@@ -33,7 +33,7 @@ function FunctionType:toString()
 	local buf = ""
 	if self.mArgTuple then
 		local nList = table.map(self.mArgTuple, function(v, k)
-			return decoTypeList[v]:toString()
+			return v:toString()
 		end)
 		buf = buf..string.format("Call(%s)", table.concat(nList, ","))
 	else

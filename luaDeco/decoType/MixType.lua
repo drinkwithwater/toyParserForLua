@@ -3,7 +3,6 @@ local class = require "util/oo"
 local env = require "luaDeco/decoType/env"
 
 local DecoType = require "luaDeco/decoType/DecoType"
-local decoTypeList = require "luaDeco/decoType/decoTypeList"
 
 local MixType = class(DecoType)
 
@@ -15,10 +14,10 @@ function MixType:add(vItem)
 	if MixType.checkClass(vItem) then
 		local nList = vItem:getBorList()
 		for k,v in pairs(nList) do
-			self.mBorList[#self.mBorList + 1] = v:getTypeIndex()
+			self.mBorList[#self.mBorList + 1] = v
 		end
 	else
-		self.mBorList[#self.mBorList + 1] = vItem:getTypeIndex()
+		self.mBorList[#self.mBorList + 1] = vItem
 	end
 end
 
@@ -40,7 +39,7 @@ end
 
 function MixType:toString()
 	local nList = table.map(self.mBorList, function(v, k)
-		return decoTypeList[v]:toString()
+		return v:toString()
 	end)
 	return table.concat(nList, "|")
 end

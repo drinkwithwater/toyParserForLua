@@ -58,6 +58,7 @@ return function(fileContext, globalContext)
 					return
 				end
 
+				fileBody = fileBody:gsub("[.]", "/")
 				local subFileContext = globalContext:getFileContext(fileBody)
 				if subFileContext then
 					-- has bee parsed...

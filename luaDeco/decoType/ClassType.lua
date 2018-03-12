@@ -7,6 +7,15 @@ local ClassType = class(TableType)
 function ClassType:ctor()
 	self.mDataDict={}
 	self.mFunctionDict={}
+	self.mClassName = nil
+end
+
+function ClassType:setClassName(vClassName)
+	self.mClassName = vClassName
+end
+
+function ClassType:toString()
+	return self.mClassName
 end
 
 function ClassType:addData(vKey, vData)

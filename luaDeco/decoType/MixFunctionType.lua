@@ -2,8 +2,6 @@ require  "util/tableExpand"
 local class = require "util/oo"
 local env = require "luaDeco/decoType/env"
 
-local decoTypeList = require "luaDeco/decoType/decoTypeList"
-
 local DecoType = require "luaDeco/decoType/DecoType"
 
 local MixFunctionType = class(DecoType)
@@ -15,7 +13,7 @@ end
 
 function MixFunctionType:add(vConstList, vFunctionType)
 	if not vConstList then
-		self[1] = vFunctionType:getTypeIndex()
+		self[1] = vFunctionType
 	else
 		local pointer = self
 		for _, aKey in ipairs(vConstList) do
@@ -26,7 +24,7 @@ function MixFunctionType:add(vConstList, vFunctionType)
 			end
 			pointer = nextPointer
 		end
-		pointer[1] = vFunctionType:getTypeIndex()
+		pointer[1] = vFunctionType
 	end
 end
 

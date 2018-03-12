@@ -7,9 +7,19 @@ local ClassType = require "luaDeco/decoType/ClassType"
 local ClassProtoType = class(DecoType)
 
 function ClassProtoType:ctor()
-	self.mClassType = ClassType.new()
 	self.mDataDict={}
 	self.mFunctionDict={}
+	self.mClassName = nil
+	self.mClassType = ClassType.new()
+end
+
+function ClassProtoType:setClassName(vClassName)
+	self.mClassName = vClassName
+	self.mClassType:setClassName(vClassName)
+end
+
+function ClassProtoType:toString()
+	return "Class-"..self.mClassName
 end
 
 function ClassProtoType:addData(vKey, vData)
@@ -21,9 +31,11 @@ function ClassProtoType:addFunction(vKey, vFunction)
 end
 
 function ClassProtoType:createDecorator()
-	local classDeco = require "luaDeco/decorator/classDeco"
-	return classDeco.ClassDeco.new(self.mClassType:getTypeIndex())
+	local Decorator = require "luaDeco/decorator/Decorator"
+	local decorator = Decorator.new()
+	decorator:setTypeIndex(self.mClassType:getTypeIndex())
+	return decorator
 end
 
-env.Class = ClassProtoType
+env.ClassProtoType = ClassProtoType
 return ClassProtoType

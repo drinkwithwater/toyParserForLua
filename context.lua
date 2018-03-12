@@ -4,11 +4,16 @@ local FileDecoEnv = require "luaDeco/fileEnv"
 
 local FileContext = class()
 
-function FileContext:ctor(ast)
+function FileContext:ctor(ast, fileBody)
 	self.uvTree = nil
 	self.ast = ast
 	self.declareDict = {}
 	self.fileDecoEnv = FileDecoEnv.new()
+	self.fileBody = fileBody
+end
+
+function FileContext:getFileBody()
+	return self.fileBody
 end
 
 function FileContext:getUVTree()

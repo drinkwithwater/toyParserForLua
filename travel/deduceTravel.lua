@@ -1,5 +1,6 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
+local decoTypeEnv = require "luaDeco/decoType/env"
 
 return function(fileContext, globalContext)
 	local travel = nil
@@ -101,19 +102,19 @@ return function(fileContext, globalContext)
 		},
 		value={
 			["string"]=function(node)
-				node.__type_right = decoEnv.String:decorator()
+				node.__type_right = decoTypeEnv.String
 			end,
 			["number"]=function(node)
-				node.__type_right = decoEnv.Number:decorator()
+				node.__type_right = decoTypeEnv.Number
 			end,
 			["true"]=function(node)
-				node.__type_right = decoEnv.Boolean:decorator()
+				node.__type_right = decoTypeEnv.Boolean
 			end,
 			["false"]=function(node)
-				node.__type_right = decoEnv.Boolean:decorator()
+				node.__type_right = decoTypeEnv.Boolean
 			end,
 			["nil"]=function(node)
-				node.__type_right = decoEnv.Nil:decorator()
+				node.__type_right = decoTypeEnv.Nil
 			end,
 		},
 	}

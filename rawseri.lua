@@ -1,4 +1,3 @@
-local DecoType = require "luaDeco/decoType/DecoType"
 
 local function serialize(obj, depth)
 	depth = depth or 0
@@ -23,15 +22,17 @@ local function serialize(obj, depth)
 	elseif t == "string" then
 		lua = lua .. string.format("%q", obj)
 	elseif t == "table" then
-		if DecoType.isClass(obj) then
-			lua = lua .. "Type["..obj:toString().."]"
-		else
-			lua = lua .. "{"..newLine
-			for k, v in pairs(obj) do
-				lua = lua ..subIndent.. "[" .. serialize(k, -1) .. "]=" .. serialize(v, depth+1) .. ","..newLine
-			end
-			lua = lua..indent.."}"
+		lua = lua .. "{"..newLine
+		for k, v in pairs(obj) do
+			lua = lua ..subIndent.. "[" .. serialize(k, -1) .. "]=" .. serialize(v, depth+1) .. ","..newLine
 		end
+		local metatable = getmetatable(obj)
+		if metatable ~= nil and type(metatable.__index) == "table" then
+			for k, v in pairs(metatable.__index) do
+				lua = lua .. subIndent.."[" .. serialize(k, -1) .. "]=" .. serialize(v, depth+1) .. ","..newLine
+			end
+		end
+		lua = lua..indent.."}"
 	elseif t == "nil" then
 		return nil
 	else

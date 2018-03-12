@@ -14,7 +14,7 @@ function Decorator:getTypeIndex()
 	return self.mTypeIndex
 end
 
-function Decorator:decorator()
+function Decorator:decorator(node, upValue)
 	return decoTypeList[self.mTypeIndex]
 end
 

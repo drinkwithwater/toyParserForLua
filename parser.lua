@@ -50,7 +50,11 @@ local function parse(fileName, globalContext)
 	copyRef(ast, root)
 
 	local globalContext = globalContext or context.GlobalContext.new()
-	local fileContext = context.FileContext.new(ast)
+	local fileBody = fileName
+	if fileName:sub(#fileName-3,#fileName) == ".lua" then
+		fileBody = fileName:sub(1, #fileName-4)
+	end
+	local fileContext = context.FileContext.new(ast, fileBody)
 
 	local posTravel = require  "travel/posTravel"
 	posTravel(fileContext, globalContext)

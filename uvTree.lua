@@ -164,7 +164,8 @@ end
 function UpValueTable:show(i)
 	for k,v in pairs(self.subList) do
 		if UpValue.isClass(v) then
-			print(string.rep("  ",i)..v:getName().." "..cjson.encode(v:getDecoSubDict()))
+			print(string.rep("  ",i)..v:getName().." "..seri(v:getDecoSubDict(), i))
+			-- print(string.rep("  ",i)..v:getName().." "..cjson.encode(v:getDecoSubDict()))
 			-- print(string.rep("  ",i)..v:getName().." "..seri(v:getSubDict(), -1))
 		else
 			v:show(i+1)

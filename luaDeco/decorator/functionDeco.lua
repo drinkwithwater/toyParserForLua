@@ -19,11 +19,11 @@ end
 local getTuple = function(...)
 	local nDecoTuple = table.pack(...)
 	nDecoTuple.n = nil
-	local nTuple = {}
+	local nTypeTuple = {}
 	for k,v in ipairs(nDecoTuple) do
-		nTuple[#nTuple + 1] = v:decorator():getTypeIndex()
+		nTypeTuple[#nTypeTuple + 1] = v:decorator()
 	end
-	return nDecoTuple, nTuple
+	return nDecoTuple, nTypeTuple
 end
 
 local Call=function(...)
@@ -31,9 +31,9 @@ local Call=function(...)
 	local nFuncDeco = FunctionDeco.new()
 	nFuncDeco:setTypeIndex(nFunction:getTypeIndex())
 
-	local nDecoTuple, nTuple = getTuple(...)
+	local nDecoTuple, nTypeTuple = getTuple(...)
 	nFuncDeco:setArgDecoTuple(nDecoTuple)
-	nFunction:setArgTuple(nTuple)
+	nFunction:setArgTuple(nTypeTuple)
 
 
 	--[[nFuncDeco.Return=function(...)

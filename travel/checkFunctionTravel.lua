@@ -1,7 +1,6 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
 local FunctionType = require "luaDeco/decoType/FunctionType"
-local indexDecoType = require "luaDeco/decoType/decoTypeList"
 
 return function(fileContext, globalContext)
 	local travel = nil
@@ -59,7 +58,7 @@ return function(fileContext, globalContext)
 					if #argTuple ~= 1 then
 						log.error(node, "function check failed 3")
 					else
-						local argType = indexDecoType[argTuple[1]]
+						local argType = argTuple[1]
 						if argType:toString() ~= "String" then
 							log.error(node, "function check failed 4")
 						end
@@ -72,8 +71,7 @@ return function(fileContext, globalContext)
 					if #argTuple ~= #argsNode.expr_list then
 						log.error(node, "function check failed 6")
 					else
-						for k, argTypeIndex in ipairs(argTuple) do
-							local argType = indexDecoType[argTypeIndex]
+						for k, argType in ipairs(argTuple) do
 							local exprNode = argsNode.expr_list[k]
 							local rightType = exprNode.__type_right
 							if exprNode.__index then
