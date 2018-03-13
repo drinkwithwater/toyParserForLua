@@ -7,7 +7,7 @@ local NodeLogger = require "nodeLogger"
 local log = require "log"
 local context = require "context"
 
-local function parse(fileName, globalContext)
+local function parseSomeTravel(fileName, globalContext, travelList)
 	local fileOpen = io.open(fileName, "r")
 	if not fileOpen then
 		log.error(fileName.." not found")
@@ -56,26 +56,9 @@ local function parse(fileName, globalContext)
 	end
 	local fileContext = context.FileContext.new(ast, fileBody)
 
-	local posTravel = require  "travel/posTravel"
-	posTravel(fileContext, globalContext)
-
-	local staticRequireTravel = require  "travel/staticRequireTravel"
-	staticRequireTravel(fileContext, globalContext)
-
-	local uvTravel = require  "travel/uvTravel"
-	uvTravel(fileContext, globalContext)
-
-	local declareTravel = require  "travel/declareTravel"
-	declareTravel(fileContext, globalContext)
-
-	local decoTravel = require  "travel/decoTravel"
-	decoTravel(fileContext, globalContext)
-
-	local deduceTravel = require  "travel/deduceTravel"
-	deduceTravel(fileContext, globalContext)
-
-	local checkFunctionTravel = require  "travel/checkFunctionTravel"
-	checkFunctionTravel(fileContext, globalContext)
+	for k,aTravel in pairs(travelList) do
+		aTravel(fileContext, globalContext)
+	end
 
 	fileContext:getUVTree().firstTable:show(1)
 	log.info(astSeri(fileContext:getAST()))
@@ -84,6 +67,30 @@ local function parse(fileName, globalContext)
 	return fileContext
 end
 
+local function parse(fileName, globalContext)
+	local posTravel = require  "travel/posTravel"
+
+	local staticRequireTravel = require  "travel/staticRequireTravel"
+
+	local uvTravel = require  "travel/uvTravel"
+
+	local declareTravel = require  "travel/declareTravel"
+
+	local decoTravel = require  "travel/decoTravel"
+
+	local deduceTravel = require  "travel/deduceTravel"
+
+	parseSomeTravel(fileName, globalContext, {
+		posTravel,
+		staticRequireTravel,
+		uvTravel,
+		declareTravel,
+		decoTravel,
+		deduceTravel,
+	})
+end
+
 return {
-	parse = parse
+	parse = parse,
+	parseSomeTravel = parseSomeTravel
 }
