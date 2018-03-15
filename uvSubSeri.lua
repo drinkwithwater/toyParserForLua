@@ -26,14 +26,19 @@ local function serialize(obj, depth)
 	elseif t == "table" then
 		if DecoType.isClass(obj) then
 			lua = lua .. "Type["..obj:toString().."]"
-		elseif KeyListDict.checkClass(obj) then
+		elseif KeyListDict.isClass(obj) then
 			local first = nil
-			if obj[1] then
-				first = serialize(obj[1], -1)
+			if #obj >= 2 then
+				local strList = {serialize(obj[2], -1)}
+				for i=3, #obj do
+					local temp=serialize(obj[i], depth)
+					strList[#strList + 1] = temp
+				end
+				first = table.concat(strList, ",")
 			else
-				first = "Type[unknown]"
+				first = "Type[unknow]"
 			end
-			lua = lua ..first.." "..serialize(obj[2], depth)
+			lua = lua ..first.."."..serialize(obj[1], depth)
 		else
 			lua = lua .. "{"..newLine
 			for k, v in pairs(obj) do

@@ -15,8 +15,9 @@ local UpValue = class()
 function UpValue:ctor(id, index)
 	self.index = index					--@Number ;
 	self.subDict = {}					--@Table ;
-	self.decoSubDict = DecoSubDict.new()
-	self.guessDecoSubDict = DecoSubDict.new()
+--	self.decoSubDict = DecoSubDict.new()
+--	self.deduceSubDict = DecoSubDict.new()
+	self.typeListDict = DecoSubDict.new()
 	if type(id) == "table" then
 		if id.__type~="name" then
 			error("parse error ... upvalue not name when uvTree:putid")
@@ -55,19 +56,28 @@ function UpValue:addKeyList(keyList)
 end
 
 function UpValue:setKeyListDeco(keyList, decoClass)
-	self.decoSubDict:setKeyListValue(keyList, decoClass)
+	self.typeListDict:setKeyListValue(keyList, decoClass, 2)
 end
 
-function UpValue:getKeyListDeco(keyList, decoClass)
-	return self.decoSubDict:getKeyListValue(keyList)
+function UpValue:getKeyListDeco(keyList)
+	return self.typeListDict:getKeyListValue(keyList, 2)
+end
+
+function UpValue:addKeyListDeduce(keyList, deduceClass)
+	local list = self.typeListDict:getKeyListValue(keyList, 3)
+	if not list then
+		list = {}
+		self.typeListDict:setKeyListValue(keyList, list, 3)
+	end
+	list[#list + 1] = deduceClass
 end
 
 function UpValue:getSubDict()
 	return self.subDict
 end
 
-function UpValue:getDecoSubDict()
-	return self.decoSubDict
+function UpValue:getTypeListDict()
+	return self.typeListDict
 end
 
 function UpValue:isNative()
@@ -126,7 +136,7 @@ end
 function UpValueTable:show(i)
 	for k,v in pairs(self.subList) do
 		if UpValue.isClass(v) then
-			print(string.rep("  ",i)..v:getName().."="..uvSubSeri(v:getDecoSubDict(), i))
+			print(string.rep("  ",i)..v:getName().."="..uvSubSeri(v:getTypeListDict(), i))
 			-- print(string.rep("  ",i)..v:getName().." "..cjson.encode(v:getDecoSubDict()))
 			-- print(string.rep("  ",i)..v:getName().." "..seri(v:getSubDict(), -1))
 		else

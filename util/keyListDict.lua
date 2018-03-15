@@ -3,42 +3,41 @@ local class = require "util/oo"
 --@Class
 local KeyListDict = class()
 function KeyListDict:ctor()
-	self[1] = false
-	self[2] = {}
+	self[1] = {}
 end
 
---@Call(Table, Table)
-function KeyListDict:setKeyListValue(keyList, value)
-	if not keyList then
-		self[1] = value
-	else
-		local pointer = self
+--@Call(Table, Any, Number)
+function KeyListDict:setKeyListValue(keyList, value, i)
+	local index = i or 2
+	local pointer = self
+	if keyList then
 		for _, aKey in ipairs(keyList) do
-			local nextPointer = pointer[2][aKey]
+			local nextPointer = pointer[1][aKey]
 			if not nextPointer then
-				nextPointer = KeyListDict.bindFunction({false, {}})
-				pointer[2][aKey] = nextPointer
+				nextPointer = KeyListDict.bindFunction({{}})
+				pointer[1][aKey] = nextPointer
 			end
 			pointer = nextPointer
 		end
-		pointer[1] = value
 	end
+	pointer[index] = value
 end
 
---@Call(Table)
-function KeyListDict:getKeyListValue(keyList)
+--@Call(Table, Number)
+function KeyListDict:getKeyListValue(keyList, i)
+	local index = i or 2
 	if not keyList then
-		return self[1]
+		return self[index]
 	else
 		local pointer = self
 		for _, aKey in ipairs(keyList) do
-			local nextPointer = pointer[2][aKey]
+			local nextPointer = pointer[1][aKey]
 			if not nextPointer then
 				return nil
 			end
 			pointer = nextPointer
 		end
-		return pointer[1]
+		return pointer[index]
 	end
 end
 

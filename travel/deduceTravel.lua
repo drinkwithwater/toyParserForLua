@@ -10,6 +10,21 @@ return function(fileContext, globalContext)
 
 	local decoEnv = fileContext:getFileDecoEnv():createGlobal(globalContext:getFileDecoEnvDict())
 
+	local function setNodeDeduce(node, deduceType)
+		if not node.__index then
+			logger.error(node, "node's uv index not found when deduce")
+			return false
+		end
+		local uvValue = uvTree:indexValue(node.__index)
+		if not uvValue then
+			logger.error(node, "node's uvValue not found when deduce")
+			return false
+		end
+		uvValue:addKeyListDeduce(node.__key_list, deduceType)
+		node.__type_right = deduceType
+		return true
+	end
+
 	local travelDict={
 		expr={
 			["uop"]=function(node)
@@ -98,6 +113,47 @@ return function(fileContext, globalContext)
 						end
 					end
 				end
+			end,
+			-- three stmt may cause deduce to upvalue
+			["assign"]=function(node)
+				travel(node.expr_list)
+				for k,expr in pairs(node.expr_list) do
+					if expr.__subtype=="function_lambda" then
+						setNodeDeduce(node.name_list[k], expr.__type_right)
+					end
+				end
+			end,
+			["function"]=function(node)
+				travel(node.block)
+				-- deco node.var_function
+				local func = decoTypeEnv.FunctionType.new()
+				local argv = node.argv
+				if argv.__subtype == "()" then
+					func:setArgTuple({})
+				elseif argv.__subtype == "list" then
+					local list = {}
+					for k,v in pairs(argv.name_list) do
+						list[#list + 1] = decoTypeEnv.Any
+					end
+					func:setArgTuple(list)
+				else
+					-- TODO
+				end
+				node.__type_right = func
+				setNodeDeduce(node.var_function, func)
+			end,
+			["local"]=function(node)
+				travel(node.expr_list)
+				if node.expr_list then
+					for k,expr in ipairs(node.expr_list) do
+						if expr.__subtype=="lambda" then
+							local lambda = expr.lambda
+							if lambda.__type_right then
+								setNodeDeduce(node.name_list[k], lambda.__type_right)
+							end
+						end
+					end
+				end
 			end
 		},
 		value={
@@ -117,6 +173,23 @@ return function(fileContext, globalContext)
 				node.__type_right = decoTypeEnv.Nil
 			end,
 		},
+		function_lambda=function(node)
+			rawtravel(node)
+			local func = decoTypeEnv.FunctionType.new()
+			local argv = node.argv
+			if argv.__subtype == "()" then
+				func:setArgTuple({})
+			elseif argv.__subtype == "list" then
+				local list = {}
+				for k,v in pairs(argv.name_list) do
+					list[#list + 1] = decoTypeEnv.Any
+				end
+				func:setArgTuple(list)
+			else
+				-- TODO
+			end
+			node.__type_right = func
+		end
 	}
 
 	local travelFactory = require "travel/travelFactory"
