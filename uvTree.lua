@@ -43,6 +43,11 @@ function UpValue:getName()
 end
 
 function UpValue:addKeyList(keyList)
+	local aDict = self.typeListDict:getKeyListValue(keyList, 4)
+	if not aDict then
+		self.typeListDict:setKeyListValue(keyList, nil, 4)
+	end
+	--[[
 	local point = self.subDict
 	for k,v in ipairs(keyList) do
 		if type(point[v])=="table" then
@@ -52,7 +57,7 @@ function UpValue:addKeyList(keyList)
 			point[v] = newPoint
 			point = newPoint
 		end
-	end
+	end]]
 end
 
 function UpValue:setKeyListDeco(keyList, decoClass)
@@ -86,6 +91,10 @@ function UpValue:isNative()
 	else
 		return false
 	end
+end
+
+function UpValue:getDictString(i)
+	return uvSubSeri(self:getTypeListDict(), i)
 end
 
 -----------------------
@@ -180,16 +189,24 @@ function UpValueTree:search(id)
 end
 
 function UpValueTree.createGlobalValue()
-	local globalValue = UpValue.new("_G", -1)
+	local globalValue = UpValue.new("_G", 0)
 	return globalValue
 end
 
+function UpValueTree:getGlobalValue()
+	return self.globalValue
+end
+
 function UpValueTree:show()
-	self.root:show(0)
+	self.firstTable:show(1)
 end
 
 function UpValueTree:indexValue(index)
-	return self.uvIndexList[index]
+	if index == self.globalValue:getIndex() then
+		return self.globalValue
+	else
+		return self.uvIndexList[index]
+	end
 end
 
 UpValueTree.DecoSubDict = DecoSubDict

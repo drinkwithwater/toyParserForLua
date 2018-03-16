@@ -12,8 +12,8 @@ end
 
 local NodeLogger = class()
 
-function NodeLogger:ctor(name)
-	local prefix = "["..name.."]"
+function NodeLogger:ctor(name, fileBody)
+	local prefix = string.format("[%s.lua][%s]", fileBody, name)
 	self.warning=function(node, ...)
 		print("[WARNING]"..prefix..nodeInfo(node), ...)
 	end

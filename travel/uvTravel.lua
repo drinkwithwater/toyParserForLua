@@ -7,7 +7,7 @@ local AstNode = require "astNode"
 
 return function(fileContext, globalContext)
 	local uvTree = UVTree.new(globalContext:getGlobalValue())
-	local log = NodeLogger.new("uv")
+	local log = NodeLogger.new("uv", fileContext:getFileBody())
 
 	local travel = nil
 	local rawtravel = nil
@@ -180,6 +180,14 @@ return function(fileContext, globalContext)
 					node.__index = uvValue:getIndex()
 				else
 					log.warning(node, nameNode.name.." undefined")
+					local globalValue = uvTree:getGlobalValue()
+					local index = globalValue:getIndex()
+					local key_list = {nameNode.name}
+					nameNode.__index = index
+					nameNode.__key_list = key_list
+					node.__index = index
+					node.__key_list = key_list
+					globalValue:addKeyList(key_list)
 				end
 			end,
 			[".name"]=function(node)
@@ -218,6 +226,8 @@ return function(fileContext, globalContext)
 				if #node.name_dot_list>0 then
 					local firstName = node.name_dot_list[1].name
 					local uvValue = uvTree:search(firstName)
+					local key_list = {}
+					-- create key_list
 					if uvValue then
 						local key_list = {}
 						for k,nameNode in ipairs(node.name_dot_list) do
@@ -225,12 +235,18 @@ return function(fileContext, globalContext)
 								key_list[k-1] = nameNode.name
 							end
 						end
-						node.__index = uvValue:getIndex()
-						node.__key_list = key_list
-						uvValue:addKeyList(node.__key_list)
 					else
 						log.warning(node, firstName.." undefined")
+						uvValue = uvTree:getGlobalValue()
+						local key_list = {}
+						for k,nameNode in ipairs(node.name_dot_list) do
+							key_list[k] = nameNode.name
+						end
 					end
+					-- add key_list into node and upvalue
+					node.__index = uvValue:getIndex()
+					node.__key_list = key_list
+					uvValue:addKeyList(node.__key_list)
 				else
 					log.error(node, "unexcept if branch when parse var")
 				end
@@ -239,20 +255,24 @@ return function(fileContext, globalContext)
 				if #node.name_dot_list>0 then
 					local firstName = node.name_dot_list[1].name
 					local uvValue = uvTree:search(firstName)
+					local key_list = {}
 					if uvValue then
-						local key_list = {}
 						for k,nameNode in ipairs(node.name_dot_list) do
 							if k>1 then
 								key_list[k-1] = nameNode.name
 							end
 						end
-						key_list[#key_list + 1] = node.name.name
-						node.__index = uvValue:getIndex()
-						node.__key_list = key_list
-						uvValue:addKeyList(node.__key_list)
 					else
 						log.warning(node, firstName.." undefined")
+						uvValue = uvTree:getGlobalValue()
+						for k,nameNode in ipairs(node.name_dot_list) do
+							key_list[k] = nameNode.name
+						end
 					end
+					key_list[#key_list + 1] = node.name.name
+					node.__index = uvValue:getIndex()
+					node.__key_list = key_list
+					uvValue:addKeyList(node.__key_list)
 				else
 					log.error(node, "unexcept if branch when parse var")
 				end

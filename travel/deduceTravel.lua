@@ -5,7 +5,7 @@ local decoTypeEnv = require "luaDeco/decoType/env"
 return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
-	local logger = NodeLogger.new("deduce")
+	local logger = NodeLogger.new("deduce", fileContext:getFileBody())
 	local uvTree = fileContext:getUVTree()
 
 	local decoEnv = fileContext:getFileDecoEnv():createGlobal(globalContext:getFileDecoEnvDict())
@@ -117,7 +117,7 @@ return function(fileContext, globalContext)
 			-- three stmt may cause deduce to upvalue
 			["assign"]=function(node)
 				travel(node.expr_list)
-				for k,expr in pairs(node.expr_list) do
+				for k,expr in ipairs(node.expr_list) do
 					if expr.__subtype=="function_lambda" then
 						setNodeDeduce(node.name_list[k], expr.__type_right)
 					end
@@ -132,7 +132,7 @@ return function(fileContext, globalContext)
 					func:setArgTuple({})
 				elseif argv.__subtype == "list" then
 					local list = {}
-					for k,v in pairs(argv.name_list) do
+					for k,v in ipairs(argv.name_list) do
 						list[#list + 1] = decoTypeEnv.Any
 					end
 					func:setArgTuple(list)
@@ -143,8 +143,8 @@ return function(fileContext, globalContext)
 				setNodeDeduce(node.var_function, func)
 			end,
 			["local"]=function(node)
-				travel(node.expr_list)
 				if node.expr_list then
+					travel(node.expr_list)
 					for k,expr in ipairs(node.expr_list) do
 						if expr.__subtype=="lambda" then
 							local lambda = expr.lambda
@@ -181,7 +181,7 @@ return function(fileContext, globalContext)
 				func:setArgTuple({})
 			elseif argv.__subtype == "list" then
 				local list = {}
-				for k,v in pairs(argv.name_list) do
+				for k,v in ipairs(argv.name_list) do
 					list[#list + 1] = decoTypeEnv.Any
 				end
 				func:setArgTuple(list)

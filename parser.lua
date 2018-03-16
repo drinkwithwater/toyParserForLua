@@ -60,7 +60,7 @@ local function parseSomeTravel(fileName, globalContext, travelList)
 		aTravel(fileContext, globalContext)
 	end
 
-	fileContext:getUVTree().firstTable:show(1)
+	fileContext:getUVTree():show()
 	log.info(astSeri(fileContext:getAST()))
 	log.info(astSeri(fileContext:getFileDecoEnv()))
 	log.info("}}} finish parsing "..fileName.." -----")
@@ -80,7 +80,7 @@ local function parse(fileName, globalContext)
 
 	local deduceTravel = require  "travel/deduceTravel"
 
-	parseSomeTravel(fileName, globalContext, {
+	return parseSomeTravel(fileName, globalContext, {
 		posTravel,
 		staticRequireTravel,
 		uvTravel,

@@ -4,7 +4,7 @@ local NodeLogger = require "nodeLogger"
 return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
-	local logger = NodeLogger.new("skynet")
+	local logger = NodeLogger.new("skynet", fileContext:getFileBody())
 
 	local travelDict={
 	}

@@ -5,7 +5,7 @@ local FunctionType = require "luaDeco/decoType/FunctionType"
 return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
-	local log = NodeLogger.new("check")
+	local log = NodeLogger.new("checkFunction", fileContext:getFileBody())
 	local uvTree = fileContext:getUVTree()
 
 	local travelDict={

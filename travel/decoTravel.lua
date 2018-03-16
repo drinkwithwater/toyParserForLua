@@ -6,7 +6,7 @@ return function(fileContext, globalContext)
 	local uvTree = fileContext:getUVTree()
 	local travel = nil
 	local rawtravel = nil
-	local logger = NodeLogger.new("deco")
+	local logger = NodeLogger.new("deco", fileContext:getFileBody())
 
 	local decoEnv = fileContext:getFileDecoEnv():createGlobal(globalContext:getFileDecoEnvDict())
 
