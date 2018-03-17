@@ -64,13 +64,17 @@ local function parseSomeTravel(fileName, globalContext, travelList)
 	log.info(astSeri(fileContext:getAST()))
 	log.info(astSeri(fileContext:getFileDecoEnv()))
 	log.info("}}} finish parsing "..fileName.." -----")
+	local service = fileContext:getService()
+	if service then
+		log.info("Skynet:", service:toString())
+	end
 	return fileContext
 end
 
 local function parse(fileName, globalContext)
 	local posTravel = require  "travel/posTravel"
 
-	local staticRequireTravel = require  "travel/staticRequireTravel"
+	-- local staticRequireTravel = require  "travel/staticRequireTravel"
 
 	local uvTravel = require  "travel/uvTravel"
 
@@ -89,6 +93,7 @@ local function parse(fileName, globalContext)
 		declareTravel,
 		decoTravel,
 		deduceTravel,
+		skynetTravel,
 	})
 end
 

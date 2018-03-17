@@ -10,6 +10,15 @@ function FileContext:ctor(ast, fileBody)
 	self.declareDict = {}
 	self.fileDecoEnv = FileDecoEnv.new()
 	self.fileBody = fileBody
+	self.service = nil
+end
+
+function FileContext:getService()
+	return self.service
+end
+
+function FileContext:setService(service)
+	self.service = service
 end
 
 function FileContext:getFileBody()

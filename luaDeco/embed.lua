@@ -26,4 +26,10 @@ function SkynetEmbed:__call(...)
 	end
 end
 
-return SkynetEmbed
+function SkynetEmbed:toString()
+	return "\n"..table.concat(self.mTree:toString({}), "\n")
+end
+
+return {
+	SkynetEmbed = SkynetEmbed
+}
