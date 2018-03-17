@@ -4,6 +4,9 @@ local class = require "util/oo"
 local KeyListDict = class()
 function KeyListDict:ctor()
 	self[1] = {}
+	self[2] = false
+	self[3] = false
+	self[4] = false
 end
 
 --@Call(Table, Any, Number)
@@ -14,7 +17,7 @@ function KeyListDict:setKeyListValue(keyList, value, i)
 		for _, aKey in ipairs(keyList) do
 			local nextPointer = pointer[1][aKey]
 			if not nextPointer then
-				nextPointer = KeyListDict.bindFunction({{}})
+				nextPointer = KeyListDict.bindFunction({{}, false, false, false})
 				pointer[1][aKey] = nextPointer
 			end
 			pointer = nextPointer

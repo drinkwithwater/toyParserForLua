@@ -80,6 +80,8 @@ local function parse(fileName, globalContext)
 
 	local deduceTravel = require  "travel/deduceTravel"
 
+	local skynetTravel = require  "travel/skynetTravel"
+
 	return parseSomeTravel(fileName, globalContext, {
 		posTravel,
 		staticRequireTravel,

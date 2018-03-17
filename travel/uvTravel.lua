@@ -229,7 +229,6 @@ return function(fileContext, globalContext)
 					local key_list = {}
 					-- create key_list
 					if uvValue then
-						local key_list = {}
 						for k,nameNode in ipairs(node.name_dot_list) do
 							if k>1 then
 								key_list[k-1] = nameNode.name
@@ -238,7 +237,6 @@ return function(fileContext, globalContext)
 					else
 						log.warning(node, firstName.." undefined")
 						uvValue = uvTree:getGlobalValue()
-						local key_list = {}
 						for k,nameNode in ipairs(node.name_dot_list) do
 							key_list[k] = nameNode.name
 						end
@@ -246,7 +244,7 @@ return function(fileContext, globalContext)
 					-- add key_list into node and upvalue
 					node.__index = uvValue:getIndex()
 					node.__key_list = key_list
-					uvValue:addKeyList(node.__key_list)
+					uvValue:addKeyList(key_list)
 				else
 					log.error(node, "unexcept if branch when parse var")
 				end

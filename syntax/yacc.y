@@ -82,7 +82,7 @@
 %token NAME STRING NUMBER
 %token DOT3 DOT2
 %token TRUE FALSE NIL
-%token COMMENT DECO_PREFIX DECO_SUFFIX DECO_DECLARE
+%token COMMENT DECO_PREFIX DECO_SUFFIX DECO_DECLARE DECO_EMBED
 
 %left EQ NE LE GE GT LT
 %left ADD SUB
@@ -106,6 +106,11 @@ stmt_list : { $$=new_obj("stmt_list",NULL); }
 
 stmt : DECO_DECLARE {
 		 int tableIndex = new_obj("stmt", "deco_declare");
+		 $$ = tableIndex;
+		 table_set(tableIndex, "buffer", $1);
+	 }
+	| DECO_EMBED {
+		 int tableIndex = new_obj("stmt", "deco_embed");
 		 $$ = tableIndex;
 		 table_set(tableIndex, "buffer", $1);
 	 }

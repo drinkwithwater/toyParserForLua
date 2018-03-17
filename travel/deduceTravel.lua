@@ -137,7 +137,7 @@ return function(fileContext, globalContext)
 					end
 					func:setArgTuple(list)
 				else
-					-- TODO
+					print("TODO")
 				end
 				node.__type_right = func
 				setNodeDeduce(node.var_function, func)

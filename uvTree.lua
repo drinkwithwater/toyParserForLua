@@ -14,7 +14,6 @@ local UpValue = class()
 --@Call(Table, Number).Return()
 function UpValue:ctor(id, index)
 	self.index = index					--@Number ;
-	self.subDict = {}					--@Table ;
 --	self.decoSubDict = DecoSubDict.new()
 --	self.deduceSubDict = DecoSubDict.new()
 	self.typeListDict = DecoSubDict.new()
@@ -45,7 +44,7 @@ end
 function UpValue:addKeyList(keyList)
 	local aDict = self.typeListDict:getKeyListValue(keyList, 4)
 	if not aDict then
-		self.typeListDict:setKeyListValue(keyList, nil, 4)
+		self.typeListDict:setKeyListValue(keyList, false, 4)
 	end
 	--[[
 	local point = self.subDict
@@ -75,10 +74,6 @@ function UpValue:addKeyListDeduce(keyList, deduceClass)
 		self.typeListDict:setKeyListValue(keyList, list, 3)
 	end
 	list[#list + 1] = deduceClass
-end
-
-function UpValue:getSubDict()
-	return self.subDict
 end
 
 function UpValue:getTypeListDict()
@@ -209,5 +204,4 @@ function UpValueTree:indexValue(index)
 	end
 end
 
-UpValueTree.DecoSubDict = DecoSubDict
 return UpValueTree
