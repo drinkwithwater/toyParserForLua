@@ -27,7 +27,7 @@ blanks [ \t\v\a\f\r\z]+
 
 %%
 
---\[\[\@([^\]])*(\]([^\]])+)*\]\] {
+--\[\[[@$]([^\]])*(\]([^\]])+)*\]\] {
 	for(int i=0;yytext[i]!='\0';i++){
 		if(yytext[i]=='\n'){
 			row++;
@@ -41,20 +41,6 @@ blanks [ \t\v\a\f\r\z]+
 	return DECO_DECLARE;
 }
 
---\[\[\$([^\]])*(\]([^\]])+)*\]\] {
-	for(int i=0;yytext[i]!='\0';i++){
-		if(yytext[i]=='\n'){
-			row++;
-		}
-	}
-	int index = luaL_len(L_context, -1) + 1;
-	int len = strlen(yytext);
-	lua_pushlstring(L_context, yytext,len);
-	lua_rawseti(L_context, -2, index);
-	yylval = index;
-	return DECO_EMBED;
-}
-
 --\[\[([^\]])*(\]([^\]])+)*\]\] {
 	for(int i=0;yytext[i]!='\0';i++){
 		if(yytext[i]=='\n'){
@@ -64,7 +50,7 @@ blanks [ \t\v\a\f\r\z]+
 }
 
 
---@[^\;\n]* {
+--[@$][^\;\n]* {
 	int index = luaL_len(L_context, -1) + 1;
 	int len = strlen(yytext);
 	lua_pushlstring(L_context, yytext,len);
@@ -73,7 +59,7 @@ blanks [ \t\v\a\f\r\z]+
 	return DECO_PREFIX;
 }
 
---@[^\;\n]*;[^\n]* {
+--[@$][^\;\n]*;[^\n]* {
 	int index = luaL_len(L_context, -1) + 1;
 	int len = strlen(yytext);
 	lua_pushlstring(L_context, yytext,len);

@@ -9,6 +9,19 @@ return function(fileContext, globalContext)
 
 	local uvTree = fileContext:getUVTree()
 
+	local function checkNodeEmbed(node)
+		local buffer = node.buffer
+		if not buffer then
+			return false
+		elseif buffer:sub(1,5) == "--[[$" then
+			return buffer
+		elseif buffer:sub(1,3) == "--$" then
+			return buffer
+		else
+			return false
+		end
+	end
+
 	local envMeta={
 		__index=function(t, k)
 			local upValue = uvTree:search(k)
@@ -18,7 +31,11 @@ return function(fileContext, globalContext)
 
 	local travelDict={
 		stmt={
-			["deco_embed"]=function(node)
+			["deco_declare"]=function(node)
+				local buffer = checkNodeEmbed(node)
+				if not buffer then
+					return
+				end
 				local service = embed.SkynetEmbed.new()
 				fileContext:setService(service)
 
@@ -27,9 +44,10 @@ return function(fileContext, globalContext)
 				}, envMeta)
 
 				-- parse from buf
-				local first = node.buffer:find("[$]") + 1
-				local last = #node.buffer - 2
-				local content = node.buffer:sub(first, last)
+
+				local first = buffer:find("[$]") + 1
+				local last = #buffer - 2
+				local content = buffer:sub(first, last)
 				-- load
 				local block = load(content, "embed", "t", embedEnv)
 				local ok, result = pcall(block)

@@ -10,6 +10,17 @@ return function(fileContext, globalContext)
 
 	local decoEnv = fileContext:getFileDecoEnv():createGlobal(globalContext:getFileDecoEnvDict())
 
+	local function checkNodeDeco(node)
+		local buffer = node.deco_buffer
+		if not buffer then
+			return false
+		elseif buffer:sub(1,3) == "--@" then
+			return buffer
+		else
+			return false
+		end
+	end
+
 	local function parseDecoBuffer(buffer)
 		-- parse from buf
 		local first = buffer:find("@") + 1
@@ -70,9 +81,9 @@ return function(fileContext, globalContext)
 				-- print(node.buffer)
 			end,
 			["local"]=function(node)
-				local buffer = node.deco_buffer
+				local buffer = checkNodeDeco(node)
 				if not buffer then
-					-- normal local stmt, do nothing
+					-- not deco
 					return
 				end
 				local decoClass = parseDecoBuffer(buffer)
@@ -97,9 +108,9 @@ return function(fileContext, globalContext)
 				end
 			end,
 			["assign"]=function(node)
-				local buffer = node.deco_buffer
+				local buffer = checkNodeDeco(node)
 				if not buffer then
-					-- normal local stmt, do nothing
+					-- no deco
 					return
 				end
 				local decoClass = parseDecoBuffer(buffer)
@@ -115,9 +126,9 @@ return function(fileContext, globalContext)
 				setNodeDeco(decoNode, decoClass)
 			end,
 			["function"]=function(node)
-				local buffer = node.deco_buffer
+				local buffer = checkNodeDeco(node)
 				if not buffer then
-					-- normal local stmt, do nothing
+					-- not deco
 					return
 				end
 				local decoClass = parseDecoBuffer(buffer)

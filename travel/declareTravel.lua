@@ -7,6 +7,17 @@ return function(fileContext, globalContext)
 	local logger = NodeLogger.new("declare", fileContext:getFileBody())
 	local fileEnv = fileContext:getFileDecoEnv()
 
+	local function checkNodeDeco(node)
+		local buffer = node.buffer
+		if not buffer then
+			return false
+		elseif buffer:sub(1,5) == "--[[@" then
+			return buffer
+		else
+			return false
+		end
+	end
+
 	local function getFileBodyFromExpr(expr)
 		if expr.__subtype~="prefix_exp" then
 			return nil
@@ -30,10 +41,14 @@ return function(fileContext, globalContext)
 	local travelDict={
 		stmt={
 			["deco_declare"]=function(node)
+				local buffer = checkNodeDeco(node)
+				if not buffer then
+					return
+				end
 				-- parse from buf
-				local first = node.buffer:find("@") + 1
-				local last = #node.buffer - 2
-				local content = node.buffer:sub(first, last)
+				local first = buffer:find("@") + 1
+				local last = #buffer - 2
+				local content = buffer:sub(first, last)
 				-- load
 				local block = load(content, "declare", "t", fileEnv:getDeclareEnv())
 				local ok, result = pcall(block)
