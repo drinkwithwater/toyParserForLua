@@ -7,6 +7,20 @@ local NodeLogger = require "nodeLogger"
 local log = require "log"
 local context = require "context"
 
+local posTravel = require  "travel/posTravel"
+
+local staticRequireTravel = require  "travel/staticRequireTravel"
+
+local skynetIncludeTravel = require "travel/skynetIncludeTravel"
+
+local uvTravel = require  "travel/uvTravel"
+
+local declareTravel = require  "travel/declareTravel"
+
+local decoTravel = require  "travel/decoTravel"
+
+local deduceTravel = require  "travel/deduceTravel"
+
 local function parseSomeTravel(fileName, globalContext, travelList)
 	local fileOpen = io.open(fileName, "r")
 	if not fileOpen then
@@ -60,41 +74,54 @@ local function parseSomeTravel(fileName, globalContext, travelList)
 		aTravel(fileContext, globalContext)
 	end
 
-	fileContext:getUVTree():show()
-	log.info(astSeri(fileContext:getAST()))
-	log.info(astSeri(fileContext:getFileDecoEnv()))
 	log.info("}}} finish parsing "..fileName.." -----")
-	local service = fileContext:getService()
-	if service then
-		log.info("Skynet:", service:toString())
-	end
 	return fileContext
 end
 
 local function parse(fileName, globalContext)
-	local posTravel = require  "travel/posTravel"
 
-	-- local staticRequireTravel = require  "travel/staticRequireTravel"
+	local fileContext = parseSomeTravel(fileName, globalContext, {
+		posTravel,
+		staticRequireTravel,
+		-- skynetIncludeTravel,
+		uvTravel,
+		declareTravel,
+		decoTravel,
+		deduceTravel,
+	})
 
-	local uvTravel = require  "travel/uvTravel"
+	fileContext:getUVTree():show()
+	log.info(astSeri(fileContext:getAST()))
+	log.info(astSeri(fileContext:getFileDecoEnv()))
+	local service = fileContext:getService()
+	if service then
+		log.info("Skynet:", service:toString())
+	end
+end
 
-	local declareTravel = require  "travel/declareTravel"
-
-	local decoTravel = require  "travel/decoTravel"
-
-	local deduceTravel = require  "travel/deduceTravel"
-
-	local skynetTravel = require  "travel/skynetTravel"
-
-	return parseSomeTravel(fileName, globalContext, {
+local function parseStaticRequire(fileName, globalContext)
+	local fileContext = parseSomeTravel(fileName, globalContext, {
 		posTravel,
 		staticRequireTravel,
 		uvTravel,
 		declareTravel,
 		decoTravel,
 		deduceTravel,
-		skynetTravel,
 	})
+
+	return fileContext
+end
+
+local function parseSkynetInclude(fileName, globalContext)
+	local fileContext = parseSomeTravel(fileName, globalContext, {
+		posTravel,
+		staticRequireTravel,
+		uvTravel,
+		declareTravel,
+		decoTravel,
+		deduceTravel,
+	})
+	return fileContext
 end
 
 return {

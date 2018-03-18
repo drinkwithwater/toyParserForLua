@@ -54,8 +54,13 @@ return function(fileContext, globalContext)
 				if not ok then
 					logger.error(node, "embed failed...", result)
 				end
-			end
-		}
+			end,
+			["local"]=function(node)
+				-- TODO
+			end,
+
+		},
+
 	}
 
 	local travelFactory = require "travel/travelFactory"

@@ -37,7 +37,13 @@ function FunctionType:toString()
 		end)
 		buf = buf..string.format("Call(%s)", table.concat(nList, ","))
 	else
-		buf = "Call()"
+		buf = "Function"
+	end
+	if self.mRetTuple then
+		local nList = table.map(self.mRetTuple, function(v, k)
+			return v:toString()
+		end)
+		buf = buf..string.format(".Return(%s)", table.concat(nList, ","))
 	end
 	return buf
 end

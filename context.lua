@@ -62,6 +62,7 @@ function GlobalContext:ctor()
 	self.globalValue = UVTree.createGlobalValue()
 	self.fileContextDict = {}
 	self.fileDecoEnvDict = {}
+	self.serviceDict = {}
 end
 
 function GlobalContext:getGlobalValue()
@@ -79,6 +80,14 @@ end
 function GlobalContext:setFileContext(fileBody, fileContext)
 	self.fileContextDict[fileBody] = fileContext
 	self.fileDecoEnvDict[fileBody] = fileContext:getFileDecoEnv()
+end
+
+function GlobalContext:getService(fileBody)
+	return self.serviceDict[fileBody]
+end
+
+function GlobalContext:setService(fileBody, service)
+	self.serviceDict[fileBody] = service
 end
 
 return {

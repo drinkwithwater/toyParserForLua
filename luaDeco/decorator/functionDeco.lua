@@ -2,10 +2,15 @@ local class = require "util/oo"
 local Decorator = require "luaDeco/decorator/Decorator"
 local FunctionType = require "luaDeco/decoType/FunctionType"
 
+local decoTypeEnv = require "luaDeco/decoType/env"
+
+decoTypeEnv.Function = FunctionType.new()
+
 local FunctionDeco = class(Decorator)
 
 function FunctionDeco:ctor()
 	self.mArgDecoTuple = nil
+	self.mRetDecoTuple = nil
 end
 
 function FunctionDeco:setArgDecoTuple(vArgDecoTuple)
@@ -14,6 +19,14 @@ end
 
 function FunctionDeco:getArgDecoTuple()
 	return self.mArgDecoTuple
+end
+
+function FunctionDeco:setRetDecoTuple(vDecoTuple)
+	self.mRetDecoTuple = vDecoTuple
+end
+
+function FunctionDeco:getRetDecoTuple()
+	return self.mRetDecoTuple
 end
 
 local getTuple = function(...)
@@ -26,7 +39,7 @@ local getTuple = function(...)
 	return nDecoTuple, nTypeTuple
 end
 
-local Call=function(...)
+local function Call(...)
 	local nFunction = FunctionType.new()
 	local nFuncDeco = FunctionDeco.new()
 	nFuncDeco:setTypeIndex(nFunction:getTypeIndex())
@@ -35,26 +48,24 @@ local Call=function(...)
 	nFuncDeco:setArgDecoTuple(nDecoTuple)
 	nFunction:setArgTuple(nTypeTuple)
 
-
-	--[[nFuncDeco.Return=function(...)
-		local nDecoTuple, nTuple = getTuple(...)
+	nFuncDeco.Return=function(...)
+		local nDecoTuple, nTypeTuple = getTuple(...)
 		nFuncDeco:setRetDecoTuple(nDecoTuple)
-		nFunction:setRetTuple(nTuple)
+		nFunction:setRetTuple(nTypeTuple)
 
 		return nFuncDeco
-	end]]
+	end
 
 	return nFuncDeco
 end
 
+local Function = FunctionDeco.new()
 
-local ColonCall=function(...)
-	error("not implement")
-end
+Function:setTypeIndex(decoTypeEnv.Function:getTypeIndex())
 
 return {
-	Call = Call,
-	DotCall = Call,
-	ColonCall = ColonCall,
+	Function = Function,
+	Call = Call
+
 }
 

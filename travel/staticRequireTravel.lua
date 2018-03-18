@@ -1,5 +1,6 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
+local AstNode = require "astNode"
 
 return function(fileContext, globalContext)
 	local travel = nil
@@ -25,36 +26,9 @@ return function(fileContext, globalContext)
 				return
 			end,
 			["function_call"]=function(node)
-				if node.name then
-					-- can't be a:b
+				local ok, fileBody = AstNode.checkCallString(node, "require")
+				if not ok then
 					rawtravel(node)
-					return
-				end
-				-- check prefix_exp = require
-				local funcVar = node.prefix_exp
-				if funcVar.__type~="var" or funcVar.__subtype~="name" then
-					rawtravel(node)
-					return
-				end
-				local nameNode = funcVar.name
-				if nameNode.name~="require" then
-					rawtravel(node)
-					return
-				end
-				-- check args = "string"
-				local argsNode = node.args
-				local fileBody = nil
-				if argsNode.__subtype=="string" then
-					fileBody = argsNode.string
-				elseif argsNode.__subtype=="(expr_list)" then
-					local expr = argsNode.expr_list[1]
-					if expr.__subtype == "value" then
-						fileBody = expr.value.value
-					end
-				end
-
-				if not fileBody then
-					logger.error(node, "require's args not simple string...")
 					return
 				end
 
@@ -67,7 +41,7 @@ return function(fileContext, globalContext)
 					-- parse it !!!
 					local fileName = REQUIRE_PATH..fileBody..".lua"
 					local parser = require "parser"
-					local subFileContext = parser.parse(fileName, globalContext)
+					local subFileContext = parser.parseStaticRequire(fileName, globalContext)
 					if subFileContext then
 						globalContext:setFileContext(fileBody, subFileContext)
 						node.__require = fileBody
