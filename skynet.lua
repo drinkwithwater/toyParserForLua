@@ -1,14 +1,34 @@
-ROOT_PATH = "test/"
+NATIVE_ENV = require "bootstrap/skynetEnv"
+
+ROOT_PATH = "../../server/"
 
 REQUIRE_PATH_LIST = {
-	"" --"/home/cz/workspace/toyParserForLua/test/"
+	"skynet/lualib/compat10/",
+	"skynet/lualib/",
+
+	"SGSkynet/sg_server/src/",
+
+	"wom/src/",
+
+	"gateCluster/src/",
+
+	"common/lua/",
 }
 
 SERVICE_PATH_LIST = {
-	"" --"/home/cz/workspace/toyParserForLua/test/"
+	"skynet/service/",
+
+	"SGSkynet/sg_server/service/",
+
+	"wom/service/",
+
+	"gateCluster/service/",
 }
 
 CLIB_PATH_LIST = {
+	"skynet/luaclib/",
+
+	"common/luaclib/android/",
 }
 
 if not arg[1] then

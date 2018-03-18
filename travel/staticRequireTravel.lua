@@ -39,9 +39,8 @@ return function(fileContext, globalContext)
 					node.__require = fileBody
 				else
 					-- parse it !!!
-					local fileName = REQUIRE_PATH..fileBody..".lua"
 					local parser = require "parser"
-					local subFileContext = parser.parseStaticRequire(fileName, globalContext)
+					local subFileContext = parser.parseStaticRequire(fileBody, globalContext)
 					if subFileContext then
 						globalContext:setFileContext(fileBody, subFileContext)
 						node.__require = fileBody

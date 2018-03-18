@@ -18,9 +18,11 @@ return function(fileContext, globalContext)
 					{"skynet", "newservice"},
 				}
 				local ok, fileBody = false, nil
+				local serviceType = nil
 				for k, tuple in pairs(nativeList) do
 					ok, fileBody = AstNode.checkCallString(node, tuple[1], tuple[2])
 					if ok then
+						serviceType = tuple[1]
 						break
 					end
 				end
@@ -35,10 +37,15 @@ return function(fileContext, globalContext)
 				end
 
 				local parser = require "parser"
-				local fileContext = parser.parseSkynetInclude(fileBody..".lua", globalContext)
-				skynetService = fileContext:getService()
+				local fileContext = nil
+				if serviceType=="skynet" then
+					fileContext = parser.parseSkynetInclude(fileBody, globalContext, false)
+				elseif serviceType=="soa" then
+					fileContext = parser.parseSkynetInclude(fileBody, globalContext, true)
+				end
+				service = fileContext:getService()
 				if skynetService then
-					globalContext:setService(fileBody, skynetService)
+					globalContext:setService(fileBody, service)
 				else
 					logger.warning(node, "skynet service undefined")
 				end

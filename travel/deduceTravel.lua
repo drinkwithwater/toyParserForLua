@@ -77,7 +77,7 @@ return function(fileContext, globalContext)
 					--decoEnv.typeAssetWarning(decoEnv.String, type2, cjson.encode(node))
 					node.__type_right = decoEnv.String
 				else
-					log.error(node,"unexception if branch")
+					logger.error(node,"TODO if branch",opStr)
 				end
 			end,
 			["value"]=function(node)
