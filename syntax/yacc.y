@@ -591,6 +591,7 @@ static int lparse(lua_State* L){
 	row = 1;
 	// row = luaL_checkinteger(L, 1);
 	inputStr = luaL_checklstring(L, 1, &size);
+	yyrestart(0);
 	yyparse();
 	inputStr = NULL;
 	L_context = NULL;

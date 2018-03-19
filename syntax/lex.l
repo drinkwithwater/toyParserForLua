@@ -121,6 +121,15 @@ blanks [ \t\v\a\f\r\z]+
 	return STRING;
 }
 
+\[\[([^\]])*(\]([^\]])+)*\]\] {
+	int index = luaL_len(L_context, -1) + 1;
+	int len = strlen(yytext);
+	lua_pushlstring(L_context, yytext+1, len-2);
+	lua_rawseti(L_context, -2, index);
+	yylval = index;
+	return STRING;
+}
+
 "true" return TRUE;
 "false" return FALSE;
 "nil" return NIL;
