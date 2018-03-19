@@ -1,6 +1,7 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
 local embed = require "luaDeco/embed"
+local AstNode = require "astNode"
 
 return function(fileContext, globalContext)
 	local travel = nil
@@ -8,6 +9,21 @@ return function(fileContext, globalContext)
 	local logger = NodeLogger.new("skynet", fileContext:getFileBody())
 
 	local uvTree = fileContext:getUVTree()
+
+	-- get return $name
+	local lastAstNode = fileContext:getLastAstNode()
+	local retName = nil
+	if lastAstNode then
+		retName = AstNode.checkReturnName(lastAstNode)
+	end
+
+	-- create service
+	local service = embed.SkynetEmbed.new()
+	fileContext:setService(service)
+	if retName then
+		local upValue = uvTree:search(retName)
+		service(upValue)
+	end
 
 	local function checkNodeEmbed(node)
 		local buffer = node.buffer
@@ -36,8 +52,6 @@ return function(fileContext, globalContext)
 				if not buffer then
 					return
 				end
-				local service = embed.SkynetEmbed.new()
-				fileContext:setService(service)
 
 				local embedEnv = setmetatable({
 					Skynet = service
@@ -55,8 +69,53 @@ return function(fileContext, globalContext)
 					logger.error(node, "embed failed...", result)
 				end
 			end,
-			["local"]=function(node)
-				-- TODO
+			["function"]=function(node)
+				-- parse for soa case:
+
+				-- check $CMD.$init
+				if not retName then
+					return
+				end
+				local nameList = node.var_function.name_dot_list
+				if #nameList ~= 2 then
+					return
+				end
+				if nameList[1].name ~= retName then
+					return
+				end
+				if nameList[2].name ~= "init" then
+					return
+				end
+
+				-- check CMD.init($name)
+				local name_list = node.argv.name_list
+				if not name_list then
+					logger.warning(node.name_list, "soa service use wrong format...")
+					return
+				end
+				if #name_list < 1 then
+					logger.warning(node.name_list, "soa service use wrong format...")
+					return
+				end
+
+				local bootstrapName = name_list[1].name
+				-- check args
+				for k, stmt in ipairs(node.block) do
+					local args = AstNode.checkCall(stmt, bootstrapName, "register")
+					if args.__subtype == "(expr_list)" then
+						local expr_list = args.expr_list
+						if #expr_list== 2 then
+							local str = AstNode.checkExprString(expr_list[1])
+							local name = AstNode.checkExprName(expr_list[2])
+							local upValue = uvTree:search(name)
+							service(str, upValue)
+						else
+							logger.warning(stmt, "soa service use wrong format...")
+						end
+					else
+						logger.warning(stmt, "soa service use wrong format...")
+					end
+				end
 			end,
 
 		},

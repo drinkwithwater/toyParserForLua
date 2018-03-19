@@ -1,4 +1,6 @@
-ROOT_PATH = "test/"
+NATIVE_ENV = {}
+
+ROOT_PATH = ""
 
 REQUIRE_PATH_LIST = {
 	"" --"/home/cz/workspace/toyParserForLua/test/"

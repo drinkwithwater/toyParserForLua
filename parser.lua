@@ -8,18 +8,13 @@ local log = require "log"
 local context = require "context"
 
 local posTravel = require  "travel/posTravel"
-
 local staticRequireTravel = require  "travel/staticRequireTravel"
-
 local skynetIncludeTravel = require "travel/skynetIncludeTravel"
-
 local uvTravel = require  "travel/uvTravel"
-
 local declareTravel = require  "travel/declareTravel"
-
 local decoTravel = require  "travel/decoTravel"
-
 local deduceTravel = require  "travel/deduceTravel"
+local skynetDefineTravel = require "travel/skynetDefineTravel"
 
 local function parseSomeTravel(fileBody, fileOpen, globalContext, travelList)
 	log.info("----- start parsing "..fileBody..".lua {{{")
@@ -68,23 +63,27 @@ local function parseSomeTravel(fileBody, fileOpen, globalContext, travelList)
 	return fileContext
 end
 
-local function parseMain(fileName, globalContext)
+local function parseMain(fileName, globalContext, travelList)
 	local fileBody = fileName
 	if fileName:sub(#fileName-3,#fileName) == ".lua" then
 		fileBody = fileName:sub(1, #fileName-4)
 	end
 
-	local fileOpen = io.open(fileName)
+	local fileOpen, result = io.open(fileName)
+	if not fileOpen then
+		error("file open failed!!!, "..result)
+	end
 
-	local fileContext = parseSomeTravel(fileBody, fileOpen, globalContext, {
+	local travelList = travelList or {
 		posTravel,
 		staticRequireTravel,
-		-- skynetIncludeTravel,
+		skynetIncludeTravel,
 		uvTravel,
 		declareTravel,
 		decoTravel,
 		deduceTravel,
-	})
+	}
+	local fileContext = parseSomeTravel(fileBody, fileOpen, globalContext, travelList)
 
 	fileContext:getUVTree():show()
 	log.info(astSeri(fileContext:getAST()))
@@ -158,7 +157,12 @@ local function parseSkynetInclude(fileBody, globalContext, isSoa)
 		declareTravel,
 		decoTravel,
 		deduceTravel,
+		skynetDefineTravel,
 	})
+	local service = fileContext:getService()
+	if service then
+		log.info("Skynet:", service:toString())
+	end
 	return fileContext
 end
 

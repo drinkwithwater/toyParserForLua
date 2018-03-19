@@ -196,11 +196,13 @@ return function(fileContext, globalContext)
 	travel, rawtravel = travelFactory.create(travelDict)
 	local ast = fileContext:getAST()
 	travel(ast)
-	local retNode = ast[#ast]
-	if retNode and retNode.__subtype=="return" and #retNode.expr_list >= 1 then
-		local retType = retNode.expr_list[1].__type_right
-		if retType then
-			fileContext:getFileDecoEnv():setRetType(retType)
+	local retNode = fileContext:getLastAstNode()
+	if retNode and retNode.__subtype=="return" then
+		if retNode.expr_list and #retNode.expr_list >= 1 then
+			local retType = retNode.expr_list[1].__type_right
+			if retType then
+				fileContext:getFileDecoEnv():setRetType(retType)
+			end
 		end
 	end
 end

@@ -31,10 +31,21 @@ return function(fileContext, globalContext)
 					return
 				end
 
+				fileBody = fileBody:gsub("[.]", "/")
 				local skynetService = globalContext:getService(fileBody)
 				if skynetService then
 					return
 				end
+
+
+				--TTTTTTTTTTTTTTTTTTTTTT TODO
+				if fileBody == "debug_console" then
+					-- TODO
+					print(" syntax don't has repeat stmt !!!!!! in debug_console.lua ")
+					return
+				end
+				--TTTTTTTTTTTTTTTTTTTTTT TODO
+
 
 				local parser = require "parser"
 				local fileContext = nil
@@ -43,7 +54,8 @@ return function(fileContext, globalContext)
 				elseif serviceType=="soa" then
 					fileContext = parser.parseSkynetInclude(fileBody, globalContext, true)
 				end
-				service = fileContext:getService()
+
+				local service = fileContext:getService()
 				if skynetService then
 					globalContext:setService(fileBody, service)
 				else

@@ -22,7 +22,31 @@ function AstNode:ctor()
 	self.__require = nil
 end
 
-function AstNode.checkCallString(node, name, subName)
+function AstNode.checkExprName(node)
+	-- check node is (expr,prefix_exp)
+	if node.__type ~= "expr" or node.__subtype ~= "prefix_exp" then
+		return false
+	end
+
+	-- check node.prefix_exp is (var,name)
+	local preVar = node.prefix_exp
+	if preVar.__type~="var" or preVar.__subtype~="name" then
+		return false
+	end
+
+	return preVar.name.name
+end
+
+function AstNode.checkExprString(node)
+	-- check node is (expr,value)
+	if node.__type ~= "expr" or node.__subtype ~= "value" then
+		return false
+	end
+
+	return node.value.value
+end
+
+function AstNode.checkCall(node, name, subName)
 	if node.__subtype ~= "function_call" then
 		return false
 	end
@@ -67,9 +91,15 @@ function AstNode.checkCallString(node, name, subName)
 		error("subName must be string or nil")
 	end
 
+	return node.args
+end
 
+function AstNode.checkCallString(node, name, subName)
 	-- check args = "string"
-	local argsNode = node.args
+	local argsNode = AstNode.checkCall(node, name, subName)
+	if not argsNode then
+		return false
+	end
 	local retArg = nil
 	if argsNode.__subtype=="string" then
 		retArg = argsNode.string
@@ -85,7 +115,20 @@ function AstNode.checkCallString(node, name, subName)
 	else
 		return false
 	end
+end
 
+function AstNode.checkCallName(node)
+	-- check args = "string"
+	local argsNode = AstNode.checkCall(node, name, subName)
+	if not argsNode then
+		return false
+	end
+	if argsNode.__subtype~="(expr_list)" then
+		return false
+	end
+
+	local expr = argsNode.expr_list[1]
+	return AstNode.checkExprName(expr)
 end
 
 function AstNode.checkReturnName(node)
@@ -97,19 +140,10 @@ function AstNode.checkReturnName(node)
 		return false
 	end
 
-	local expr = lastAstNode.expr_list[1]
-	if expr.__subtype ~= "prefix_expr" then
-		return false
-	end
-
-	local preVar = expr.prefix_exp
-	if preVar.__type=="var" and preVar.__subtype=="name" then
-		return preVar.name.name
-	else
-		return false
-	end
-
+	local expr = node.expr_list[1]
+	return AstNode.checkExprName(expr)
 end
+
 
 AstNode.ID_OPER_DEF = 1
 AstNode.ID_OPER_SET = 2
