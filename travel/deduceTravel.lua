@@ -12,12 +12,12 @@ return function(fileContext, globalContext)
 
 	local function setNodeDeduce(node, deduceType)
 		if not node.__index then
-			logger.error(node, "node's uv index not found when deduce")
+			logger.warning(node, "node's uv index not found when deduce")
 			return false
 		end
 		local uvValue = uvTree:indexValue(node.__index)
 		if not uvValue then
-			logger.error(node, "node's uvValue not found when deduce")
+			logger.warning(node, "node's uvValue not found when deduce")
 			return false
 		end
 		uvValue:addKeyListDeduce(node.__key_list, deduceType)
@@ -117,9 +117,12 @@ return function(fileContext, globalContext)
 			-- three stmt may cause deduce to upvalue
 			["assign"]=function(node)
 				travel(node.expr_list)
-				for k,expr in ipairs(node.expr_list) do
-					if expr.__subtype=="function_lambda" then
-						setNodeDeduce(node.name_list[k], expr.__type_right)
+				for k, var in ipairs(node.var_list) do
+					local expr = node.expr_list[k]
+					if expr and expr.__type_list then
+						setNodeDeduce(var, expr.__type_list)
+					else
+						setNodeDeduce(var, decoTypeEnv.Nil)
 					end
 				end
 			end,
@@ -174,7 +177,8 @@ return function(fileContext, globalContext)
 			end,
 		},
 		function_lambda=function(node)
-			rawtravel(node)
+			travel(node.argv)
+			travel(node.block)
 			local func = decoTypeEnv.FunctionType.new()
 			local argv = node.argv
 			if argv.__subtype == "()" then
