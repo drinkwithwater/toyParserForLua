@@ -11,6 +11,24 @@ local FunctionType = class(DecoType)
 function FunctionType:ctor()
 	self.mArgTuple=nil
 	self.mRetTuple=nil
+	self.mArgDot3=false
+	self.mRetDot3=false
+end
+
+function FunctionType:setRetDot3(vFlag)
+	self.mRetDot3 = vFlag
+end
+
+function FunctionType:getRetDot3()
+	return self.mRetDot3
+end
+
+function FunctionType:setArgDot3(vFlag)
+	self.mArgDot3 = vFlag
+end
+
+function FunctionType:getArgDot3()
+	return self.mArgDot3
 end
 
 function FunctionType:setArgTuple(vList)

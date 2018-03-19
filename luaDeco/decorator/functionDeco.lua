@@ -4,54 +4,58 @@ local FunctionType = require "luaDeco/decoType/FunctionType"
 
 local decoTypeEnv = require "luaDeco/decoType/env"
 
+local cjson = require "cjson"
 decoTypeEnv.Function = FunctionType.new()
 
 local FunctionDeco = class(Decorator)
 
 function FunctionDeco:ctor()
-	self.mArgDecoTuple = nil
-	self.mRetDecoTuple = nil
-end
-
-function FunctionDeco:setArgDecoTuple(vArgDecoTuple)
-	self.mArgDecoTuple = vArgDecoTuple
 end
 
 function FunctionDeco:getArgDecoTuple()
-	return self.mArgDecoTuple
+	local argTuple = self:getDecoType():getArgTuple() or {}
+	return table.map(argTuple, function(v, k)
+		local deco = Decorator.new()
+		deco:setTypeIndex(v:getTypeIndex())
+		return deco
+	end)
 end
 
-function FunctionDeco:setRetDecoTuple(vDecoTuple)
-	self.mRetDecoTuple = vDecoTuple
-end
-
-function FunctionDeco:getRetDecoTuple()
-	return self.mRetDecoTuple
-end
-
-local getTuple = function(...)
+local getTypeTuple = function(...)
 	local nDecoTuple = table.pack(...)
 	nDecoTuple.n = nil
-	local nTypeTuple = {}
-	for k,v in ipairs(nDecoTuple) do
-		nTypeTuple[#nTypeTuple + 1] = v:decorator()
-	end
-	return nDecoTuple, nTypeTuple
+	local nTypeTuple = table.map(nDecoTuple, function(v, k)
+		return v:getDecoType()
+	end)
+	return nTypeTuple
 end
 
 local function Call(...)
 	local nFunction = FunctionType.new()
 	local nFuncDeco = FunctionDeco.new()
+
 	nFuncDeco:setTypeIndex(nFunction:getTypeIndex())
 
-	local nDecoTuple, nTypeTuple = getTuple(...)
-	nFuncDeco:setArgDecoTuple(nDecoTuple)
-	nFunction:setArgTuple(nTypeTuple)
+	local nTypeTuple = getTypeTuple(...)
+	if nTypeTuple[#nTypeTuple] == decoTypeEnv.Dot3 then
+		nTypeTuple[#nTypeTuple] = nil
+		nFunction:setArgTuple(nTypeTuple)
+		nFunction:setArgDot3(true)
+	else
+		nFunction:setArgTuple(nTypeTuple)
+		nFunction:setArgDot3(false)
+	end
 
 	nFuncDeco.Return=function(...)
-		local nDecoTuple, nTypeTuple = getTuple(...)
-		nFuncDeco:setRetDecoTuple(nDecoTuple)
-		nFunction:setRetTuple(nTypeTuple)
+		local nTypeTuple = getTypeTuple(...)
+		if nTypeTuple[#nTypeTuple] == decoTypeEnv.Dot3 then
+			nTypeTuple[#nTypeTuple] = nil
+			nFunction:setRetTuple(nTypeTuple)
+			nFunction:setRetDot3(true)
+		else
+			nFunction:setRetTuple(nTypeTuple)
+			nFunction:setRetDot3(false)
+		end
 
 		return nFuncDeco
 	end

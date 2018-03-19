@@ -14,7 +14,12 @@ function Decorator:getTypeIndex()
 	return self.mTypeIndex
 end
 
+-- To Be Override
 function Decorator:decorator(node, upValue)
+	return decoTypeList[self.mTypeIndex]
+end
+
+function Decorator:getDecoType()
 	return decoTypeList[self.mTypeIndex]
 end
 

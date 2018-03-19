@@ -15,6 +15,8 @@ decoTypeEnv.String = BaseType.new("String")
 decoTypeEnv.Boolean = BaseType.new("Boolean")
 decoTypeEnv.Nil = BaseType.new("Nil")
 
+decoTypeEnv.Dot3 = BaseType.new("Dot3")
+
 decoTypeEnv.Any = AnyType.new()
 
 decoTypeEnv.Table = TableType.new()
@@ -24,7 +26,12 @@ local temp = {
 	String = 1,
 	Boolean = 1,
 	Nil = 1,
+
+	Dot3 = 1,
+
 	Any = 1,
+
+	Table = 1,
 }
 
 return table.map(temp, function(v,k)

@@ -3,7 +3,7 @@ local seri = require "seri"
 local uvSubSeri= require "uvSubSeri"
 local cjson = require "cjson"
 
-local DecoSubDict = require "util/keyListDict"
+local DecoSubDict = require "DecoSubDict"
 
 ----------------------
 -- UpValue -----------
@@ -14,8 +14,6 @@ local UpValue = class()
 --@Call(Table, Number).Return()
 function UpValue:ctor(id, index)
 	self.index = index					--@Number ;
---	self.decoSubDict = DecoSubDict.new()
---	self.deduceSubDict = DecoSubDict.new()
 	self.typeListDict = DecoSubDict.new()
 	if type(id) == "table" then
 		if id.__type~="name" then
