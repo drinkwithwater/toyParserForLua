@@ -31,8 +31,10 @@ return function(fileContext, globalContext)
 			return nil
 		else
 			local subFileContext = globalContext:getFileContext(fileBody)
-			if subFileContext then
+			if type(subFileContext) == "table" then
 				return fileBody
+			else
+				return nil
 			end
 		end
 		return nil

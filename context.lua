@@ -79,7 +79,9 @@ end
 
 function GlobalContext:setFileContext(fileBody, fileContext)
 	self.fileContextDict[fileBody] = fileContext
-	self.fileDecoEnvDict[fileBody] = fileContext:getFileDecoEnv()
+	if type(fileContext) == "table" then
+		self.fileDecoEnvDict[fileBody] = fileContext:getFileDecoEnv()
+	end
 end
 
 function GlobalContext:getService(fileBody)

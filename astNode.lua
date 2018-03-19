@@ -23,6 +23,9 @@ function AstNode:ctor()
 end
 
 function AstNode.checkCallString(node, name, subName)
+	if node.__subtype ~= "function_call" then
+		return false
+	end
 	if node.name then
 		return false
 	end
@@ -78,7 +81,30 @@ function AstNode.checkCallString(node, name, subName)
 	end
 
 	if retArg then
-		return true, retArg
+		return retArg
+	else
+		return false
+	end
+
+end
+
+function AstNode.checkReturnName(node)
+	if node.__subtype ~= "return" then
+		return false
+	end
+
+	if not node.expr_list then
+		return false
+	end
+
+	local expr = lastAstNode.expr_list[1]
+	if expr.__subtype ~= "prefix_expr" then
+		return false
+	end
+
+	local preVar = expr.prefix_exp
+	if preVar.__type=="var" and preVar.__subtype=="name" then
+		return preVar.name.name
 	else
 		return false
 	end

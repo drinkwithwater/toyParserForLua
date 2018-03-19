@@ -28,7 +28,7 @@ SERVICE_PATH_LIST = {
 CLIB_PATH_LIST = {
 	"skynet/luaclib/",
 
-	"common/luaclib/android/",
+	"common/luaclib/linux/",
 }
 
 if not arg[1] then

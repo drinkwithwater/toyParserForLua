@@ -17,16 +17,16 @@ return function(fileContext, globalContext)
 					{"skynet", "uniqueservice"},
 					{"skynet", "newservice"},
 				}
-				local ok, fileBody = false, nil
+				local fileBody = nil
 				local serviceType = nil
 				for k, tuple in pairs(nativeList) do
-					ok, fileBody = AstNode.checkCallString(node, tuple[1], tuple[2])
-					if ok then
+					fileBody = AstNode.checkCallString(node, tuple[1], tuple[2])
+					if fileBody then
 						serviceType = tuple[1]
 						break
 					end
 				end
-				if not ok then
+				if not fileBody then
 					rawtravel(node)
 					return
 				end

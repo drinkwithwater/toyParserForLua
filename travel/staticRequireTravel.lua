@@ -26,8 +26,8 @@ return function(fileContext, globalContext)
 				return
 			end,
 			["function_call"]=function(node)
-				local ok, fileBody = AstNode.checkCallString(node, "require")
-				if not ok then
+				local fileBody = AstNode.checkCallString(node, "require")
+				if not fileBody then
 					rawtravel(node)
 					return
 				end

@@ -97,6 +97,7 @@ end
 
 local function parseStaticRequire(fileBody, globalContext)
 	if NATIVE_ENV[fileBody] then
+		globalContext:setFileContext(fileBody, true)
 		return nil
 	end
 	local fileOpen = nil
@@ -121,6 +122,7 @@ local function parseStaticRequire(fileBody, globalContext)
 	local fileContext = parseSomeTravel(fileBody, fileOpen, globalContext, {
 		posTravel,
 		staticRequireTravel,
+		-- skynetIncludeTravel,
 		uvTravel,
 		declareTravel,
 		decoTravel,
@@ -130,7 +132,7 @@ local function parseStaticRequire(fileBody, globalContext)
 	return fileContext
 end
 
-local function parseSkynetInclude(fileName, globalContext, isSoa)
+local function parseSkynetInclude(fileBody, globalContext, isSoa)
 	local fileOpen = nil
 	local usePathList = nil
 	if isSoa then
