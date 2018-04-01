@@ -1,33 +1,51 @@
 local class = require "util/oo"
-local TreeFunctionType = require "luaDeco/decoType/TreeFunctionType"
+local SkynetType = require "luaDeco/decoType/SkynetType"
 local FunctionType = require "luaDeco/decoType/FunctionType"
 
 local SkynetEmbed = class()
 
-function SkynetEmbed:ctor()
-	self.mTree = TreeFunctionType.new()
+function SkynetEmbed:ctor(fileContext, globalContext, logger)
+	self.mSkynetType = SkynetType.new()
+
+	self.fileContext = fileContext
+	self.globalContext = globalContext
+	self.logger = logger
 end
 
 function SkynetEmbed:__call(...)
 	local list = table.pack(...)
-	local lastIndex = #list
-	local upValue = list[lastIndex]
-	list[lastIndex] = nil
-	local subNodeDict = upValue:getTypeListDict()[1]
+	local subcmd
+	local upvalue
+	if #list == 2 then
+		subcmd, upvalue = ...
+	elseif #list==1 then
+		upvalue = ...
+		subcmd = nil
+	end
+	if #list>2 then
+		self.logger.print("error, skynet not support more than 2 layer subcmd...!!!")
+	elseif #list<1 then
+		self.logger.print("error, skynet not support less than 1 layer subcmd...!!!")
+	end
+
+	local subNodeDict = upvalue:getTypeListDict()[1]
 
 	for lastKey, subNode in pairs(subNodeDict) do
-		list[lastIndex] = lastKey
 		local funcType = subNode[2] or (subNode[3] and subNode[3][1])
 		if FunctionType.isClass(funcType) then
-			self.mTree:add(list, funcType)
+			if subcmd then
+				self.mSkynetType:addSubcmdFunction(subcmd, lastKey, funcType)
+			else
+				self.mSkynetType:addCmdFunction(lastKey, funcType)
+			end
 		else
-			print("error not a function !!!")
+			self.logger.print("error not a function !!!")
 		end
 	end
 end
 
 function SkynetEmbed:toString()
-	return "\n"..table.concat(self.mTree:toString({}), "\n")
+	return self.mSkynetType:toString()
 end
 
 return {

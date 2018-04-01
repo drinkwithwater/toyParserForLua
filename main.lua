@@ -17,8 +17,8 @@ if not arg[1] then
 	print("usage: lua main.lua xxx.lua")
 	return
 else
-	local context = require "context"
-	local globalContext = context.GlobalContext.new()
+	local GlobalContext = require "context/GlobalContext"
+	local globalContext = GlobalContext.new()
 
 	local parser = require "parser"
 	parser.parse(arg[1], globalContext)

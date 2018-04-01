@@ -6,9 +6,9 @@ local Decorator = require "luaDeco/decorator/Decorator"
 local FileEnv = class()
 
 function FileEnv:ctor()
-	self.nameToDeco = {}
-	self.nameToRequireFile = {}
-	self.retType = nil
+	self.nameToDeco = {}					-- name to deco
+	self.nameToRequireFile = {}				-- name to filebody
+	self.retUpValue = nil
 end
 
 function FileEnv:createGlobal(requireFileEnvDict)
@@ -43,12 +43,12 @@ function FileEnv:createForName()
 end
 
 -- setter & getter
-function FileEnv:getRetType()
-	return self.retType
+function FileEnv:getRetUpValue()
+	return self.retUpValue
 end
 
-function FileEnv:setRetType(vType)
-	self.retType = vType
+function FileEnv:setRetUpValue(vUpValue)
+	self.retUpValue = vUpValue
 end
 
 function FileEnv:getNameDeco(name)

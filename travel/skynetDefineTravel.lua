@@ -6,7 +6,7 @@ local AstNode = require "astNode"
 return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
-	local logger = NodeLogger.new("skynet", fileContext:getFileBody())
+	local logger = NodeLogger.new("skynetDefine", fileContext:getFileBody())
 
 	local uvTree = fileContext:getUVTree()
 
@@ -18,7 +18,7 @@ return function(fileContext, globalContext)
 	end
 
 	-- create service
-	local service = embed.SkynetEmbed.new()
+	local service = embed.SkynetEmbed.new(fileContext, globalContext, logger)
 	fileContext:setService(service)
 	if retName then
 		local upValue = uvTree:search(retName)

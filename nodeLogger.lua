@@ -23,6 +23,9 @@ function NodeLogger:ctor(name, fileBody)
 	self.result=function(node, ...)
 		print("[RESULT]"..prefix..nodeInfo(node), ...)
 	end
+	self.print=function(...)
+		print("[PRINT]"..prefix, ...)
+	end
 end
 
 return NodeLogger

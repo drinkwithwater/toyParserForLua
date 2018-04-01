@@ -35,7 +35,7 @@ return function(fileContext, globalContext)
 				fileBody = fileBody:gsub("[.]", "/")
 				local subFileContext = globalContext:getFileContext(fileBody)
 				if subFileContext then
-					-- has bee parsed...
+					-- has been parsed...
 					node.__require = fileBody
 				else
 					-- parse it !!!

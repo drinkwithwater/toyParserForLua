@@ -5,15 +5,20 @@ local astSeri = require "astSeri"
 local NodeLogger = require "nodeLogger"
 
 local log = require "log"
-local context = require "context"
+local FileContext = require "context/FileContext"
+local GlobalContext= require "context/GlobalContext"
 
 local posTravel = require  "travel/posTravel"
+
 local staticRequireTravel = require  "travel/staticRequireTravel"
 local skynetIncludeTravel = require "travel/skynetIncludeTravel"
+
 local uvTravel = require  "travel/uvTravel"
 local declareTravel = require  "travel/declareTravel"
 local decoTravel = require  "travel/decoTravel"
 local deduceTravel = require  "travel/deduceTravel"
+
+local classDefineTravel = require "travel/classDefineTravel"
 local skynetDefineTravel = require "travel/skynetDefineTravel"
 
 local function parseSomeTravel(fileBody, fileOpen, globalContext, travelList)
@@ -52,8 +57,8 @@ local function parseSomeTravel(fileBody, fileOpen, globalContext, travelList)
 
 	copyRef(ast, root)
 
-	local globalContext = globalContext or context.GlobalContext.new()
-	local fileContext = context.FileContext.new(ast, fileBody)
+	local globalContext = globalContext or GlobalContext.new()
+	local fileContext = FileContext.new(ast, fileBody)
 
 	for k,aTravel in pairs(travelList) do
 		aTravel(fileContext, globalContext)
@@ -82,6 +87,8 @@ local function parseMain(fileName, globalContext, travelList)
 		declareTravel,
 		decoTravel,
 		deduceTravel,
+		classDefineTravel,
+		skynetDefineTravel,
 	}
 	local fileContext = parseSomeTravel(fileBody, fileOpen, globalContext, travelList)
 
@@ -121,11 +128,12 @@ local function parseStaticRequire(fileBody, globalContext)
 	local fileContext = parseSomeTravel(fileBody, fileOpen, globalContext, {
 		posTravel,
 		staticRequireTravel,
-		-- skynetIncludeTravel,
+		skynetIncludeTravel,
 		uvTravel,
 		declareTravel,
 		decoTravel,
 		deduceTravel,
+		classDefineTravel,
 	})
 
 	return fileContext
@@ -152,7 +160,7 @@ local function parseSkynetInclude(fileBody, globalContext, isSoa)
 	end
 	local fileContext = parseSomeTravel(fileBody, fileOpen, globalContext, {
 		posTravel,
-		staticRequireTravel,
+		-- staticRequireTravel,
 		uvTravel,
 		declareTravel,
 		decoTravel,

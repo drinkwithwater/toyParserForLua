@@ -1,6 +1,7 @@
 local class = require "util/oo"
 local Decorator = require "luaDeco/decorator/Decorator"
 local FunctionType = require "luaDeco/decoType/FunctionType"
+local TreeFunctionType = require "luaDeco/decoType/TreeFunctionType"
 
 local decoTypeEnv = require "luaDeco/decoType/env"
 
@@ -70,6 +71,5 @@ Function:setTypeIndex(decoTypeEnv.Function:getTypeIndex())
 return {
 	Function = Function,
 	Call = Call
-
 }
 

@@ -22,6 +22,7 @@ function AstNode:ctor()
 	self.__require = nil
 end
 
+-- type == expr.prefix_exp-var,name
 function AstNode.checkExprName(node)
 	-- check node is (expr,prefix_exp)
 	if node.__type ~= "expr" or node.__subtype ~= "prefix_exp" then
@@ -37,6 +38,7 @@ function AstNode.checkExprName(node)
 	return preVar.name.name
 end
 
+-- type == expr.value
 function AstNode.checkExprString(node)
 	-- check node is (expr,value)
 	if node.__type ~= "expr" or node.__subtype ~= "value" then
@@ -46,6 +48,17 @@ function AstNode.checkExprString(node)
 	return node.value.value
 end
 
+-- type == expr.prefix_exp-function_call
+function AstNode.checkExprCall(node)
+	-- check node is (expr,value)
+	if node.__type ~= "expr" or node.__subtype ~= "prefix_exp" then
+		return false
+	end
+
+	return node.prefix_exp
+end
+
+-- soa  soa.uniqueservice
 function AstNode.checkCall(node, name, subName)
 	if node.__subtype ~= "function_call" then
 		return false
@@ -94,6 +107,7 @@ function AstNode.checkCall(node, name, subName)
 	return node.args
 end
 
+-- require("dosth")   require "dosth"
 function AstNode.checkCallString(node, name, subName)
 	-- check args = "string"
 	local argsNode = AstNode.checkCall(node, name, subName)
