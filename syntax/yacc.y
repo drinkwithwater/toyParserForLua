@@ -142,7 +142,7 @@ stmt : DECO_DECLARE {
 	| DECO_PREFIX function_stmt { table_set($2, "deco_buffer", $1); $$ = $2; }
 	| function_stmt DECO_SUFFIX { table_set($1, "deco_buffer", $2); $$ = $1; }
 
-    | function_call { $$ = $1; }
+    | function_call_stmt { $$ = $1; }
     | if_stmt { $$ = $1; }
     | ret_stmt { $$ = $1; }
 
@@ -285,21 +285,12 @@ expr_list : expr {
 
 
 prefix_exp : var {
-			//int tableIndex = new_obj("prefix_exp", "var");
-			//$$ = tableIndex;
-			//table_set(tableIndex, "var", $1);
 			$$=$1;
 		   }
-		| function_call {
-			//int tableIndex = new_obj("prefix_exp", "function_call");
-			//$$ = tableIndex;
-			//table_set(tableIndex, "function_call", $1);
+		| function_call{
 			$$=$1;
 		}
 		| LEFT_PAREN expr RIGHT_PAREN {
-			//int tableIndex = new_obj("prefix_exp", "(expr)");
-			//$$ = tableIndex;
-			//table_set(tableIndex, "expr", $2);
 			$$=$2;
 		}
 
@@ -377,6 +368,23 @@ args : STRING {
 		$$ = tableIndex;
 		table_set(tableIndex, "expr_list", $2);
 	}
+
+function_call_stmt : function_call_stmt args {
+					  int tableIndex = new_obj("stmt", "function_call");
+					  $$ = tableIndex;
+					  table_set(tableIndex, "prefix_exp", $1);
+					  table_set(tableIndex, "args", $2);
+				   }
+				   | function_call_stmt COLON name args {
+					  int tableIndex = new_obj("stmt","function_call");
+					  $$ = tableIndex;
+					  table_set(tableIndex, "prefix_exp", $1);
+					  table_set(tableIndex, "name", $3);
+					  table_set(tableIndex, "args", $4);
+				   }
+				   | function_call {
+					   $$=$1;
+				   }
 
 function_call : prefix_exp args {
 			  int tableIndex = new_obj("stmt", "function_call");
