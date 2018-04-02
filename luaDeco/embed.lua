@@ -44,9 +44,51 @@ function SkynetEmbed:__call(...)
 	end
 end
 
+function SkynetEmbed:getSkynetType()
+	return self.mSkynetType
+end
+
 function SkynetEmbed:toString()
 	return self.mSkynetType:toString()
 end
+
+local ClassProtoType = require "luaDeco/decoType/ClassProtoType"
+local ClassEmbed = class()
+function ClassEmbed:ctor(fileContext, globalContext, logger)
+	self.mClassProtoType = ClassProtoType.new()
+
+	self.fileContext = fileContext
+	self.globalContext = globalContext
+	self.logger = logger
+end
+
+function ClassEmbed:setDefine(name, upvalue)
+	local className = self.fileContext:getFileBody().."#"..name
+	self.mClassProtoType:setClassName(className)
+
+	local subNodeDict = upvalue:getTypeListDict()[1]
+	for lastKey, subNode in pairs(subNodeDict) do
+		local funcType = subNode[2] or (subNode[3] and subNode[3][1])
+		if FunctionType.isClass(funcType) then
+			self.mClassProtoType:addFunction(lastKey, funcType)
+		else
+			self.logger.print("class's sub not functionType")
+		end
+	end
+end
+
+function ClassEmbed:selfAdd(upvalue)
+end
+
+function ClassEmbed:getClassProto()
+	return self.mClassProtoType
+end
+
+
+function ClassEmbed:toString()
+	return self.mSkynetType:toString()
+end
+
 
 return {
 	SkynetEmbed = SkynetEmbed

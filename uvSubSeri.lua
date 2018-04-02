@@ -28,15 +28,18 @@ local function serialize(obj, depth)
 			lua = lua .. "Type["..obj:toString().."]"
 		elseif DecoSubDict.isClass(obj) then
 			local strList = nil
-			if obj[2] then
-				strList = {serialize(obj[2], -1)}
-			else
-				strList = {"Type[unknow]"}
-			end
-			for i=3, #obj do
-				if obj[i] then
-					local temp=serialize(obj[i], depth)
-					strList[#strList + 1] = temp
+			for i=2, #obj do
+				if i<=3 then
+					if obj[i] then
+						strList = {serialize(obj[i], -1)}
+					else
+						strList = {"Type[unknow]"}
+					end
+				else
+					if obj[i] then
+						local temp=serialize(obj[i], depth)
+						strList[#strList + 1] = temp
+					end
 				end
 			end
 			local first = table.concat(strList, ",")

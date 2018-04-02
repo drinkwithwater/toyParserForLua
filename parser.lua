@@ -82,8 +82,8 @@ local function parseMain(fileName, globalContext, travelList)
 	local travelList = travelList or {
 		posTravel,
 		staticRequireTravel,
-		skynetIncludeTravel,
 		uvTravel,
+		skynetIncludeTravel,
 		declareTravel,
 		decoTravel,
 		deduceTravel,

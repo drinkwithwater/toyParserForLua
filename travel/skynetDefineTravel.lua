@@ -17,13 +17,8 @@ return function(fileContext, globalContext)
 		retName = AstNode.checkReturnName(lastAstNode)
 	end
 
-	-- create service
-	local service = embed.SkynetEmbed.new(fileContext, globalContext, logger)
-	fileContext:setService(service)
-	if retName then
-		local upValue = uvTree:search(retName)
-		service(upValue)
-	end
+	-- skynetEmbed variable
+	local skynetEmbed = nil
 
 	local function checkNodeEmbed(node)
 		local buffer = node.buffer
@@ -40,6 +35,7 @@ return function(fileContext, globalContext)
 
 	local envMeta={
 		__index=function(t, k)
+			-- must be local variable in first layer...
 			local upValue = uvTree:search(k)
 			return upValue
 		end,
@@ -53,8 +49,10 @@ return function(fileContext, globalContext)
 					return
 				end
 
+				skynetEmbed = embed.SkynetEmbed.new(fileContext, globalContext, logger)
+
 				local embedEnv = setmetatable({
-					Skynet = service
+					Skynet = skynetEmbed
 				}, envMeta)
 
 				-- parse from buf
@@ -72,10 +70,12 @@ return function(fileContext, globalContext)
 			["function"]=function(node)
 				-- parse for soa case:
 
-				-- check $CMD.$init
+				-- check "return CMD"
 				if not retName then
 					return
 				end
+
+				-- check $CMD.$init
 				local nameList = node.var_function.name_dot_list
 				if #nameList ~= 2 then
 					return
@@ -90,13 +90,19 @@ return function(fileContext, globalContext)
 				-- check CMD.init($name)
 				local name_list = node.argv.name_list
 				if not name_list then
-					logger.warning(node.name_list, "soa service use wrong format...")
+					logger.warning(node.name_list, "soa skynetEmbed use wrong format...")
 					return
 				end
 				if #name_list < 1 then
-					logger.warning(node.name_list, "soa service use wrong format...")
+					logger.warning(node.name_list, "soa skynetEmbed use wrong format...")
 					return
 				end
+
+				-- format right, init skynetembed
+				skynetEmbed = embed.SkynetEmbed.new(fileContext, globalContext, logger)
+				print(lastAstNode.expr_list[1].__index)
+				local upValue = uvTree:indexValue(lastAstNode.expr_list[1].__index)
+				skynetEmbed(upValue)
 
 				local bootstrapName = name_list[1].name
 				-- check args
@@ -107,13 +113,13 @@ return function(fileContext, globalContext)
 						if #expr_list== 2 then
 							local str = AstNode.checkExprString(expr_list[1])
 							local name = AstNode.checkExprName(expr_list[2])
-							local upValue = uvTree:search(name)
-							service(str, upValue)
+							local upValue = uvTree:indexValue(expr_list[2].__index)
+							skynetEmbed(str, upValue)
 						else
-							logger.warning(stmt, "soa service use wrong format...")
+							logger.warning(stmt, "soa skynetEmbed use wrong format...")
 						end
 					else
-						logger.warning(stmt, "soa service use wrong format...")
+						logger.warning(stmt, "soa skynetEmbed use wrong format...")
 					end
 				end
 			end,
@@ -126,4 +132,7 @@ return function(fileContext, globalContext)
 	travel, rawtravel = travelFactory.create(travelDict)
 	travel(fileContext:getAST())
 
+	if skynetEmbed then
+		fileContext:setService(skynetEmbed:getSkynetType())
+	end
 end

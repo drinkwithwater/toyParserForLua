@@ -40,9 +40,9 @@ function UpValue:getName()
 end
 
 function UpValue:addKeyList(keyList)
-	local aDict = self.typeListDict:getKeyListValue(keyList, 4)
+	local aDict = self.typeListDict:getKeyListValue(keyList, DecoSubDict.EMPTY)
 	if not aDict then
-		self.typeListDict:setKeyListValue(keyList, false, 4)
+		self.typeListDict:setKeyListValue(keyList, false, DecoSubDict.EMPTY)
 	end
 	--[[
 	local point = self.subDict
@@ -58,20 +58,28 @@ function UpValue:addKeyList(keyList)
 end
 
 function UpValue:setKeyListDeco(keyList, decoClass)
-	self.typeListDict:setKeyListValue(keyList, decoClass, 2)
+	self.typeListDict:setKeyListValue(keyList, decoClass, DecoSubDict.DECO_TYPE)
 end
 
 function UpValue:getKeyListDeco(keyList)
-	return self.typeListDict:getKeyListValue(keyList, 2)
+	return self.typeListDict:getKeyListValue(keyList, DecoSubDict.DECO_TYPE)
 end
 
 function UpValue:addKeyListDeduce(keyList, deduceClass)
-	local list = self.typeListDict:getKeyListValue(keyList, 3)
+	local list = self.typeListDict:getKeyListValue(keyList, DecoSubDict.DEDUCE_TYPE_LIST)
 	if not list then
 		list = {}
-		self.typeListDict:setKeyListValue(keyList, list, 3)
+		self.typeListDict:setKeyListValue(keyList, list, DecoSubDict.DEDUCE_TYPE_LIST)
 	end
 	list[#list + 1] = deduceClass
+end
+
+function UpValue:getKeyListNative(keyList)
+	return self.typeListDict:getKeyListValue(keyList, DecoSubDict.NATIVE_TYPE)
+end
+
+function UpValue:setKeyListNative(keyList, nativeTypeClass)
+	self.typeListDict:setKeyListValue(keyList, nativeTypeClass, DecoSubDict.NATIVE_TYPE)
 end
 
 function UpValue:getTypeListDict()

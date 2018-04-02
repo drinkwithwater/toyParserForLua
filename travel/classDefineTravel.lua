@@ -1,6 +1,7 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
 local AstNode = require "astNode"
+local embed = require "luaDeco/embed"
 
 return function(fileContext, globalContext)
 	local travel = nil
@@ -25,6 +26,7 @@ return function(fileContext, globalContext)
 	local travelDict={
 		stmt={
 			["local"]=function(node)
+				rawtravel(node)
 				if not node.expr_list then
 					return
 				end
@@ -32,15 +34,23 @@ return function(fileContext, globalContext)
 					return
 				end
 
-				local name = node.name_list[1].name
+				local nameNode = node.name_list[1]
+				local name = nameNode.name
 
 				if not checkExprClass(node.expr_list[1]) then
 					return
 				else
-					print("define class:",name)
+					local upvalue = uvTree:indexValue(nameNode.__index)
+					local classEmbed = embed.ClassEmbed.new(fileContext, globalContext, logger)
+					classEmbed:setDefine(name, upvalue)
+					local protoType = classEmbed:getClassProto()
+					upvalue:setKeyListNative({}, protoType)
 				end
 			end,
 			["assign"]=function(node)
+				rawtravel(assign)
+				-- TODO
+				-- Sth.SubSth
 			end
 		},
 

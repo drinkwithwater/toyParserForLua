@@ -276,6 +276,13 @@ return function(fileContext, globalContext)
 				end
 			end
 		},
+		expr={
+			["prefix_exp"]=function(node)
+				travel(node.prefix_exp)
+				node.__index = node.prefix_exp.__index
+				node.__key_list = node.prefix_exp.__key_list
+			end
+		}
 	}
 
 	local travelFactory = require "travel/travelFactory"

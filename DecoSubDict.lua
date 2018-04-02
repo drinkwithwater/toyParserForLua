@@ -3,14 +3,22 @@ local KeyListDict = require "util/KeyListDict"
 
 local DecoSubDict = class(KeyListDict)
 
-local DECO = 2
-local DEDUCE_LIST = 3
-local OP_DICT = 4 -- TODO
+local DECO_TYPE = 2
+local NATIVE_TYPE = 3
+local DEDUCE_TYPE_LIST = 4
+local OP_LIST = 5			-- TODO
+local EMPTY = 5
+
+DecoSubDict.DECO_TYPE = DECO_TYPE
+DecoSubDict.NATIVE_TYPE = NATIVE_TYPE
+DecoSubDict.DEDUCE_TYPE_LIST = DEDUCE_TYPE_LIST
+DecoSubDict.EMPTY = EMPTY
 
 function DecoSubDict:ctor()
 	self[2] = false
 	self[3] = false
 	self[4] = false
 end
+
 
 return DecoSubDict

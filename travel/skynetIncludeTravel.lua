@@ -34,7 +34,7 @@ return function(fileContext, globalContext)
 				fileBody = fileBody:gsub("[.]", "/")
 				local skynetService = globalContext:getService(fileBody)
 				if skynetService then
-					return
+					return skynetService
 				end
 
 
@@ -56,11 +56,31 @@ return function(fileContext, globalContext)
 				end
 
 				local service = fileContext:getService()
-				if skynetService then
+				if not skynetService then
 					globalContext:setService(fileBody, service)
 				else
 					logger.warning(node, "skynet service undefined")
 				end
+
+				return service
+			end,
+			["local"]=function(node)
+				if not node.expr_list then
+					rawtravel(node)
+					return
+				end
+				for i,exprNode in ipairs(node.expr_list) do
+					local nameNode = node.name_list[i]
+					if nameNode then
+						local service = travel(exprNode)
+						if service then
+							local upvalue = uvTree:indexValue(nameNode.__index)
+							upvalue:setKeyListNative({}, service)
+						end
+					end
+				end
+			end,
+			["assign"]=function()
 			end,
 		},
 
