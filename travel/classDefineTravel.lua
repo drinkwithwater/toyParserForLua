@@ -48,7 +48,7 @@ return function(fileContext, globalContext)
 				end
 			end,
 			["assign"]=function(node)
-				rawtravel(assign)
+				rawtravel(node)
 				-- TODO
 				-- Sth.SubSth
 			end

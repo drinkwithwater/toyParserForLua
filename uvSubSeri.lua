@@ -1,5 +1,5 @@
 local DecoType = require "luaDeco/decoType/DecoType"
-local DecoSubDict = require "DecoSubDict"
+local KeyListDict = require "util/KeyListDict"
 
 local function serialize(obj, depth)
 	depth = depth or 0
@@ -26,7 +26,7 @@ local function serialize(obj, depth)
 	elseif t == "table" then
 		if DecoType.isClass(obj) then
 			lua = lua .. "Type["..obj:toString().."]"
-		elseif DecoSubDict.isClass(obj) then
+		elseif KeyListDict.isClass(obj) then
 			local strList = nil
 			for i=2, #obj do
 				if i<=3 then

@@ -2,6 +2,8 @@ local class = require "util/oo"
 local SkynetType = require "luaDeco/decoType/SkynetType"
 local FunctionType = require "luaDeco/decoType/FunctionType"
 
+local DecoSubDict = require "DecoSubDict"
+
 local SkynetEmbed = class()
 
 function SkynetEmbed:ctor(fileContext, globalContext, logger)
@@ -31,7 +33,7 @@ function SkynetEmbed:__call(...)
 	local subNodeDict = upvalue:getTypeListDict()[1]
 
 	for lastKey, subNode in pairs(subNodeDict) do
-		local funcType = subNode[2] or (subNode[3] and subNode[3][1])
+		local funcType = subNode:getDecoDeduce()
 		if FunctionType.isClass(funcType) then
 			if subcmd then
 				self.mSkynetType:addSubcmdFunction(subcmd, lastKey, funcType)

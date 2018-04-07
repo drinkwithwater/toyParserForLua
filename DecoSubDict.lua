@@ -20,5 +20,15 @@ function DecoSubDict:ctor()
 	self[4] = false
 end
 
+function DecoSubDict:getDecoDeduce()
+	if self[DECO_TYPE] then
+		return self[DECO_TYPE]
+	elseif self[DEDUCE_TYPE_LIST] then
+		return self[DEDUCE_TYPE_LIST][1]
+	else
+		return nil
+	end
+end
+
 
 return DecoSubDict
