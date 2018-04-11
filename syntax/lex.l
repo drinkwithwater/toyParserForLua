@@ -174,6 +174,7 @@ blanks [ \t\v\a\f\r\z]+
 "&" return BITAND;
 "~" return BITNOT;
 
+"//" return DIV2;
 ">>" return SRR;
 "<<" return SLL;
 

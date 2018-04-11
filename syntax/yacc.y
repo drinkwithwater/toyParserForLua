@@ -65,6 +65,8 @@
 
 	SRR ">>"
 	SLL "<<"
+	DIV2 "//"
+
     EQ "=="
     NE "~="
     LE "<="
@@ -86,7 +88,7 @@
 
 %left EQ NE LE GE GT LT
 %left ADD SUB
-%left MUL DIV MOD
+%left MUL DIV DIV2 MOD
 %left POWER
 %left BITAND BITOR
 %left SHARP
@@ -415,6 +417,7 @@ binary_op: OR  { $$ = new_obj("bop","or"); }
     | POWER { $$ = new_obj("bop","^"); }
     | SRR { $$ = new_obj("bop",">>"); }
     | SLL { $$ = new_obj("bop","<<"); }
+    | DIV2 { $$ = new_obj("bop","//"); }
     | EQ { $$ = new_obj("bop","=="); }
     | NE { $$ = new_obj("bop","~="); }
     | LE { $$ = new_obj("bop","<="); }
