@@ -68,16 +68,7 @@ end
 function ClassEmbed:setDefine(name, upvalue)
 	local className = self.fileContext:getFileBody().."#"..name
 	self.mClassProtoType:setClassName(className)
-
-	local subNodeDict = upvalue:getTypeListDict()[1]
-	for lastKey, subNode in pairs(subNodeDict) do
-		local funcType = subNode[2] or (subNode[3] and subNode[3][1])
-		if FunctionType.isClass(funcType) then
-			self.mClassProtoType:addFunction(lastKey, funcType)
-		else
-			self.logger.print("class's sub not functionType")
-		end
-	end
+	self.mClassProtoType:setUpValue(upvalue)
 end
 
 function ClassEmbed:selfAdd(upvalue)
@@ -94,5 +85,6 @@ end
 
 
 return {
-	SkynetEmbed = SkynetEmbed
+	SkynetEmbed = SkynetEmbed,
+	ClassEmbed = ClassEmbed
 }

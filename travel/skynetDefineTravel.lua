@@ -12,9 +12,10 @@ return function(fileContext, globalContext)
 
 	-- get return $name
 	local lastAstNode = fileContext:getLastAstNode()
-	local retName = nil
+	local retNameStr = nil
 	if lastAstNode then
-		retName = AstNode.checkReturnName(lastAstNode)
+		local retName = AstNode.checkReturnName(lastAstNode)
+		retNameStr = retName and retName.name
 	end
 
 	-- skynetEmbed variable
@@ -71,7 +72,7 @@ return function(fileContext, globalContext)
 				-- parse for soa case:
 
 				-- check "return CMD"
-				if not retName then
+				if not retNameStr then
 					return
 				end
 
@@ -80,7 +81,7 @@ return function(fileContext, globalContext)
 				if #nameList ~= 2 then
 					return
 				end
-				if nameList[1].name ~= retName then
+				if nameList[1].name ~= retNameStr then
 					return
 				end
 				if nameList[2].name ~= "init" then

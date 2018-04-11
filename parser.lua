@@ -136,6 +136,8 @@ local function parseStaticRequire(fileBody, globalContext)
 		classDefineTravel,
 	})
 
+	fileContext:getUVTree():show()
+	log.info(astSeri(fileContext:getAST()))
 	return fileContext
 end
 

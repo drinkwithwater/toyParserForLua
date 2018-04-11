@@ -290,4 +290,14 @@ return function(fileContext, globalContext)
 
 	travel(fileContext:getAST())
 	fileContext:setUVTree(uvTree)
+
+	local lastAstNode = fileContext:getLastAstNode()
+	if lastAstNode then
+		local retName = AstNode.checkReturnName(lastAstNode)
+		if retName and retName.__index then
+			local uv = uvTree:indexValue(retName.__index)
+			fileContext:getFileDecoEnv():setRetUpValue(uv)
+		end
+	end
+
 end

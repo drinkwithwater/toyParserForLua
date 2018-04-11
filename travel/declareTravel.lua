@@ -1,12 +1,14 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
 local AstNode = require "astNode"
+local embed = require "luaDeco/embed"
 
 return function(fileContext, globalContext)
 	local travel = nil
 	local rawtravel = nil
 	local logger = NodeLogger.new("declare", fileContext:getFileBody())
 	local fileEnv = fileContext:getFileDecoEnv()
+	local uvTree = fileContext:getUVTree()
 
 	local function checkNodeDeco(node)
 		local buffer = node.buffer
@@ -38,6 +40,8 @@ return function(fileContext, globalContext)
 				end
 			end,
 			["assign"]=function(node)
+				-- TODO not used in assign ...
+				--[[
 				if #node.var_list~=1 or #node.expr_list~=1 then
 					rawtravel(node)
 					return
@@ -51,13 +55,13 @@ return function(fileContext, globalContext)
 				end
 
 				-- check expr
-				local requireFile = AstNode.checkCallString(node.expr_list[1])
+				local requireFile = AstNode.checkCallString(node.expr_list[1], "require")
 				if not requireFile then
 					rawtravel(node)
 					return
 				end
 
-				fileContext:getFileDecoEnv():addRequire(var.name.name, requireFile)
+				fileContext:getFileDecoEnv():addRequire(var.name.name, requireFile) ]]
 			end,
 			["local"]=function(node)
 				if not node.name_list or not node.expr_list then
@@ -73,14 +77,20 @@ return function(fileContext, globalContext)
 				-- check name
 				local nameNode=node.name_list[1]
 
-				-- check expr
-				local requireFileBody = AstNode.checkCallString(node.expr_list[1])
-				if not requireFileBody then
+				-- if is require
+				local requireFileBody = AstNode.checkExprCallString(node.expr_list[1], "require")
+				local classArgs, sth = AstNode.checkExprCallArgs(node.expr_list[1], "class")
+				if requireFileBody then
+					fileContext:getFileDecoEnv():addRequire(nameNode.name, requireFileBody)
+				elseif classArgs then
+					local upvalue = uvTree:indexValue(nameNode.__index)
+					local classEmbed = embed.ClassEmbed.new(fileContext, globalContext, logger)
+					classEmbed:setDefine(nameNode.name, upvalue)
+					local protoType = classEmbed:getClassProto()
+					upvalue:setKeyListNative({}, protoType)
+				else
 					rawtravel(node)
-					return
 				end
-
-				fileContext:getFileDecoEnv():addRequire(nameNode.name, requireFileBody)
 			end,
 		}
 	}

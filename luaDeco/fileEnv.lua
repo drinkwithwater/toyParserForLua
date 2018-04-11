@@ -30,8 +30,9 @@ end
 
 function FileEnv:createForName()
 	local deco = nil
-	if self.retType and self.retType.createDecorator then
-		deco = self.retType:createDecorator()
+	local retNative = self.retUpValue and self.retUpValue:getKeyListNative()
+	if retNative and retNative.createDecorator then
+		deco = retNative:createDecorator()
 	else
 		deco = Decorator.new()
 	end
