@@ -8,6 +8,7 @@ local SkynetEmbed = class()
 
 function SkynetEmbed:ctor(fileContext, globalContext, logger)
 	self.mSkynetType = SkynetType.new()
+	self.mSkynetType:setFileBody(fileContext:getFileBody())
 
 	self.fileContext = fileContext
 	self.globalContext = globalContext

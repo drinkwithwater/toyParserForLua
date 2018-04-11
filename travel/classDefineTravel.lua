@@ -15,7 +15,7 @@ return function(fileContext, globalContext)
 		if not funcClass then
 			return false
 		end
-		local args = AstNode.checkCall(funcCall, "class")
+		local args = AstNode.checkCallArgs(funcCall, "class")
 		if not args then
 			return false
 		else

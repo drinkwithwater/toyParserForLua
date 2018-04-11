@@ -107,7 +107,7 @@ return function(fileContext, globalContext)
 				local bootstrapName = name_list[1].name
 				-- check args
 				for k, stmt in ipairs(node.block) do
-					local args = AstNode.checkCall(stmt, bootstrapName, "register")
+					local args = AstNode.checkCallArgs(stmt, bootstrapName, "register")
 					if args.__subtype == "(expr_list)" then
 						local expr_list = args.expr_list
 						if #expr_list== 2 then

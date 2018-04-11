@@ -6,7 +6,12 @@ local TypeTree = require "luaDeco/decoType/TypeTree"
 local SkynetType = class(DecoType)
 
 function SkynetType:ctor()
+	self.mFileBody = ""
 	self.mTree = TypeTree.new()
+end
+
+function SkynetType:setFileBody(vFileBody)
+	self.mFileBody = vFileBody
 end
 
 function SkynetType:addCmdFunction(vName, vFunction)
@@ -19,6 +24,10 @@ end
 
 function SkynetType:toString()
 	-- return "Type[Skynet]\n"..table.concat(self.mTree:toString({}), "\n")
+	return "Skynet("..self.mFileBody..")"
+end
+
+function SkynetType:toDetailString()
 	return self.mTree:toString()
 end
 

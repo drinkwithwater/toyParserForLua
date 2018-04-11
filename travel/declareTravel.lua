@@ -1,5 +1,6 @@
 local cjson = require "cjson"
 local NodeLogger = require "nodeLogger"
+local AstNode = require "astNode"
 
 return function(fileContext, globalContext)
 	local travel = nil
@@ -16,28 +17,6 @@ return function(fileContext, globalContext)
 		else
 			return false
 		end
-	end
-
-	local function getFileBodyFromExpr(expr)
-		if expr.__subtype~="prefix_exp" then
-			return nil
-		elseif expr.prefix_exp.__subtype~="function_call" then
-			return nil
-		end
-
-		-- check has require
-		local fileBody = expr.prefix_exp.__require
-		if not fileBody then
-			return nil
-		else
-			local subFileContext = globalContext:getFileContext(fileBody)
-			if type(subFileContext) == "table" then
-				return fileBody
-			else
-				return nil
-			end
-		end
-		return nil
 	end
 
 	local travelDict={
@@ -72,7 +51,7 @@ return function(fileContext, globalContext)
 				end
 
 				-- check expr
-				local requireFile = getFileBodyFromExpr(node.expr_list[1])
+				local requireFile = AstNode.checkCallString(node.expr_list[1])
 				if not requireFile then
 					rawtravel(node)
 					return
@@ -95,7 +74,7 @@ return function(fileContext, globalContext)
 				local nameNode=node.name_list[1]
 
 				-- check expr
-				local requireFileBody = getFileBodyFromExpr(node.expr_list[1])
+				local requireFileBody = AstNode.checkCallString(node.expr_list[1])
 				if not requireFileBody then
 					rawtravel(node)
 					return

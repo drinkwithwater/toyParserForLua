@@ -25,7 +25,7 @@ local function serialize(obj, depth)
 		lua = lua .. string.format("%q", obj)
 	elseif t == "table" then
 		if DecoType.isClass(obj) then
-			lua = lua .. "Type["..obj:toString().."]"
+			lua = lua .. obj:toString()
 		elseif KeyListDict.isClass(obj) then
 			local strList = nil
 			for i=2, #obj do
@@ -33,7 +33,7 @@ local function serialize(obj, depth)
 					if obj[i] then
 						strList = {serialize(obj[i], -1)}
 					else
-						strList = {"Type[unknow]"}
+						strList = {"[Unknow]"}
 					end
 				else
 					if obj[i] then

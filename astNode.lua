@@ -59,7 +59,7 @@ function AstNode.checkExprCall(node)
 end
 
 -- soa  soa.uniqueservice
-function AstNode.checkCall(node, name, subName)
+function AstNode.checkCallArgs(node, name, subName)
 	if node.__subtype ~= "function_call" then
 		return false
 	end
@@ -110,7 +110,7 @@ end
 -- require("dosth")   require "dosth"
 function AstNode.checkCallString(node, name, subName)
 	-- check args = "string"
-	local argsNode = AstNode.checkCall(node, name, subName)
+	local argsNode = AstNode.checkCallArgs(node, name, subName)
 	if not argsNode then
 		return false
 	end
@@ -125,6 +125,7 @@ function AstNode.checkCallString(node, name, subName)
 	end
 
 	if retArg then
+		-- return "dosth"
 		return retArg
 	else
 		return false
@@ -133,7 +134,7 @@ end
 
 function AstNode.checkCallName(node)
 	-- check args = "string"
-	local argsNode = AstNode.checkCall(node, name, subName)
+	local argsNode = AstNode.checkCallArgs(node, name, subName)
 	if not argsNode then
 		return false
 	end
