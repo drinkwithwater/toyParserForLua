@@ -68,7 +68,7 @@ local function parseSomeTravel(fileBody, fileOpen, globalContext, travelList)
 	return fileContext
 end
 
-local function parseMain(fileName, globalContext, travelList)
+local function parseMain(fileName, globalContext, travelList, showUV)
 	local fileBody = fileName
 	if fileName:sub(#fileName-3,#fileName) == ".lua" then
 		fileBody = fileName:sub(1, #fileName-4)
@@ -92,10 +92,12 @@ local function parseMain(fileName, globalContext, travelList)
 	}
 	local fileContext = parseSomeTravel(fileBody, fileOpen, globalContext, travelList)
 
-	fileContext:getUVTree():show()
-	log.info(astSeri(fileContext:getAST()))
-	log.info(astSeri(fileContext:getFileDecoEnv()))
-	local service = fileContext:getService()
+	if showUV then
+		fileContext:getUVTree():show()
+	end
+	--log.info(astSeri(fileContext:getAST()))
+	--log.info(astSeri(fileContext:getFileDecoEnv()))
+	--local service = fileContext:getService()
 	if service then
 		log.info("Skynet:", service:toString())
 	end

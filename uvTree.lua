@@ -200,6 +200,9 @@ end
 
 function UpValueTree:show()
 	self.firstTable:show(1)
+	if self.globalValue then
+		print("_G:", uvSubSeri(self.globalValue:getTypeListDict(), 0))
+	end
 end
 
 function UpValueTree:indexValue(index)

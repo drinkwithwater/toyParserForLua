@@ -13,7 +13,8 @@ end
 local NodeLogger = class()
 
 function NodeLogger:ctor(name, fileBody)
-	local prefix = string.format("[%s.lua][%s]", fileBody, name)
+	local offset = #fileBody - (fileBody:reverse():find("/") or (#fileBody + 1)) + 2
+	local prefix = string.format("[%s.lua][%s]", fileBody:sub(offset), name)
 	self.warning=function(node, ...)
 		print("[WARNING]"..prefix..nodeInfo(node), ...)
 	end

@@ -6,6 +6,8 @@ local AstNode = require "astNode"
 --TODO get uv index for (expr)
 
 return function(fileContext, globalContext)
+
+	local GLOBAL = GLOBAL or {}
 	local uvTree = UVTree.new(globalContext:getGlobalValue())
 	local log = NodeLogger.new("uv", fileContext:getFileBody())
 
@@ -179,7 +181,9 @@ return function(fileContext, globalContext)
 					nameNode.__index = uvValue:getIndex()
 					node.__index = uvValue:getIndex()
 				else
-					log.warning(node, nameNode.name.." undefined")
+					if not GLOBAL[nameNode.name] then
+						log.warning(node, nameNode.name.." undefined")
+					end
 					local globalValue = uvTree:getGlobalValue()
 					local index = globalValue:getIndex()
 					local key_list = {nameNode.name}
@@ -235,7 +239,9 @@ return function(fileContext, globalContext)
 							end
 						end
 					else
-						log.warning(node, firstName.." undefined")
+						if not GLOBAL[firstName] then
+							log.warning(node, firstName.." undefined")
+						end
 						uvValue = uvTree:getGlobalValue()
 						for k,nameNode in ipairs(node.name_dot_list) do
 							key_list[k] = nameNode.name
@@ -261,7 +267,9 @@ return function(fileContext, globalContext)
 							end
 						end
 					else
-						log.warning(node, firstName.." undefined")
+						if not GLOBAL[firstName] then
+							log.warning(node, firstName.." undefined")
+						end
 						uvValue = uvTree:getGlobalValue()
 						for k,nameNode in ipairs(node.name_dot_list) do
 							key_list[k] = nameNode.name
