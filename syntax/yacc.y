@@ -38,6 +38,8 @@
 	FOR "for"
 	IN "in"
 	BREAK "break"
+	REPEAT "repeat"
+	UNTIL "until"
 
     LEFT_PAREN "("
     RIGHT_PAREN ")"
@@ -146,7 +148,16 @@ stmt : DECO_DECLARE {
 
     | function_call_stmt { $$ = $1; }
     | if_stmt { $$ = $1; }
+    | repeat_stmt { $$ = $1; }
     | ret_stmt { $$ = $1; }
+
+
+repeat_stmt : REPEAT block UNTIL expr {
+			int tableIndex = new_obj("stmt", "repeat");
+			$$ = tableIndex;
+			table_set(tableIndex, "block", $2);
+			table_set(tableIndex, "expr", $4);
+	   }
 
 assign_stmt : var_list EQA expr_list {
 			int tableIndex = new_obj("stmt", "assign");

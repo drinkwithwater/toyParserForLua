@@ -148,6 +148,8 @@ blanks [ \t\v\a\f\r\z]+
 "for" return FOR;
 "in" return IN;
 "break" return BREAK;
+"until" return UNTIL;
+"repeat" return REPEAT;
 
 
   /* quote */
