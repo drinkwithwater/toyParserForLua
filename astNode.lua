@@ -35,7 +35,7 @@ function AstNode.checkExprName(node)
 		return false
 	end
 
-	return preVar.name.name
+	return preVar.name
 end
 
 -- type == expr.value
@@ -61,15 +61,15 @@ end
 -- soa  soa.uniqueservice
 function AstNode.checkCallArgs(node, name, subName)
 	if node.__subtype ~= "function_call" then
-		return false
+		return false, 1
 	end
 	if node.name then
-		return false
+		return false, 2
 	end
 	-- check prefix_exp = require
 	local funcVar = node.prefix_exp
 	if funcVar.__type~="var" then
-		return false
+		return false, 3
 	end
 
 
@@ -80,25 +80,25 @@ function AstNode.checkCallArgs(node, name, subName)
 
 	if type(subName)=="string" then
 		if funcVar.__subtype~=".name" then
-			return false
+			return false, 4
 		end
 		local preFuncVar = funcVar.prefix_exp
 		if preFuncVar.__type~="var" or preFuncVar.__subtype~="name" then
-			return false
+			return false, 5
 		end
 		if preFuncVar.name.name ~= name then
-			return false
+			return false, 6
 		end
 		if funcVar.name.name ~= subName then
-			return false
+			return false, 7
 		end
 	elseif not subName then
 		if funcVar.__subtype~="name" then
-			return false
+			return false, 8
 		end
 		local nameNode = funcVar.name
 		if nameNode.name ~= name then
-			return false
+			return false, 9
 		end
 	else
 		error("subName must be string or nil")
@@ -157,6 +157,24 @@ function AstNode.checkReturnName(node)
 
 	local expr = node.expr_list[1]
 	return AstNode.checkExprName(expr)
+end
+
+function AstNode.checkExprCallArgs(node, name, subName)
+	local prefix = AstNode.checkExprCall(node)
+	if prefix then
+		return AstNode.checkCallArgs(prefix, name, subName)
+	else
+		return false
+	end
+end
+
+function AstNode.checkExprCallString(node, name, subName)
+	local prefix = AstNode.checkExprCall(node)
+	if prefix then
+		return AstNode.checkCallString(prefix, name, subName)
+	else
+		return false
+	end
 end
 
 
